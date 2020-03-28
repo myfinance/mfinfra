@@ -15,3 +15,7 @@ at least python has to be installed at the ansible client
 configure kubernetes and devenv-server: ansible-playbook site.yml --vault-id prod@~/.vault_prod
 
 
+### next step ###
+ install myjenkins
+
+
