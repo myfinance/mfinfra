@@ -1,0 +1,22 @@
+--- 
+  - name: install java
+    action: yum pkg={{java_pkg}} state=present
+    tags:
+     - java
+  - name: create dir for maven
+    file: path=/opt/maven state=directory
+    tags:
+     - maven
+  - name: Untar Maven
+    unarchive: src="{{maven_tar}}" dest=/opt/maven remote_src="yes"
+    tags:
+     - maven
+  - name: setup link to maven current
+    file: 
+     path: "/opt/maven/current" 
+     src: "/opt/maven/apache-maven-{{maven_version}}"
+     state: link 
+     force: yes
+     mode: 0755
+    tags:
+     - maven

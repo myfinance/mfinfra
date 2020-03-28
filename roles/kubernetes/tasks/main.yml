@@ -1,0 +1,52 @@
+---
+# tasks file for kubernetes
+- name: Download kubectl
+  get_url:
+    url: https://storage.googleapis.com/kubernetes-release/release/v1.16.3/bin/linux/amd64/kubectl
+    dest: /usr/local/bin/kubectl
+    mode: '0755'  
+  tags:
+   - kubernetes       
+- name: install minikube
+  get_url:
+    url: https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+    dest: /usr/local/bin/minikube
+    mode: '0755'   
+  tags:
+   - kubernetes     
+# firewall ausschalten
+- name: disable firewall
+  shell: setenforce 0 
+  tags:
+   - kubernetes 
+# start minikube
+- name: start minikube
+  shell: minikube start --vm-driver="none"
+  tags:
+   - kubernetes   
+# add helm   
+- name: Retrieve helm binary archive.
+  unarchive:
+    src: https://get.helm.sh/helm-v3.1.0-linux-amd64.tar.gz
+    dest: /tmp
+    creates: /usr/local/bin/helm
+    remote_src: yes  
+- name: Move helm binary into place.
+  command: >
+        cp /tmp/linux-amd64/helm /usr/local/bin/helm
+        creates=/usr/local/bin/helm   
+- name: add default helm repo
+  shell: helm repo add stable https://kubernetes-charts.storage.googleapis.com/ 
+  tags:
+   - kubernetes    
+- name: enable ingress plugin
+  shell: minikube addons enable ingress
+  tags:
+   - kubernetes 
+ 
+
+
+
+
+
+    

@@ -1,0 +1,47 @@
+---
+  - name: Install some base yum package for git compile etc
+    yum:
+     name: "{{ item }}"
+    with_items:
+     - curl-devel
+     - expat-devel
+     - openssl-devel
+     - zlib-devel
+     - gcc
+     - cpan
+    tags:
+     - git
+  - name: Get git binary
+    unarchive:
+     src: "{{ git_url }}"
+     dest: "/tmp"
+     remote_src: yes
+    changed_when: false
+    tags:
+     - git
+  - name: Make all git binary
+    make:
+     chdir: "/tmp/git-{{ git_version }}"
+     target: all
+     params:
+       prefix: "/usr/local"
+    changed_when: false
+    tags:
+     - git
+  - name: Make install git binary
+    make:
+     chdir: "/tmp/git-{{ git_version }}"
+     target: install
+     params:
+       prefix: "/usr/local"
+    changed_when: false
+    tags:
+     - git
+
+  - name: Remove file
+    file:
+     path: "/tmp/git-{{ git_version }}"
+     state: absent
+    changed_when: false
+    tags:
+     - git

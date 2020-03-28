@@ -1,0 +1,29 @@
+---
+  #- name: upgrade all packages
+  #  yum:
+  #   name: '*'
+  #   state: latest
+  #   exclude: kernel*
+  - name: Install some base yum package for git compile etc
+    yum:
+     name: "{{ item }}"
+    with_items:
+     #allgemein hilfreiche tools
+     - tree
+     - yum-utils
+     - wget
+    #not sure for what
+     - bind-utils
+     - iptables-services
+     - bridge-utils
+     - bash-completion
+     - kexec-tools
+     - sos
+     - psacct
+     - httpd-tools
+     - NetworkManager
+     - python-cryptography
+     - python-devel
+     - python-passlib
+     #needed for nfs
+     - nfs-utils

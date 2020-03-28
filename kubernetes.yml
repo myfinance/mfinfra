@@ -1,0 +1,8 @@
+---
+  - name: Kubernetes-Server
+    hosts: kuberneteshost
+    remote_user: holger
+    become: true
+    become_method: sudo
+    roles:
+     - kubernetes

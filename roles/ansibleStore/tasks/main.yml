@@ -1,0 +1,3 @@
+---
+# tasks file for ansibleStore
+ - import_tasks: install.yml

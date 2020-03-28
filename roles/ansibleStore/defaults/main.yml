@@ -1,0 +1,3 @@
+---
+# vars file for ansibleStore
+ username: "builder"

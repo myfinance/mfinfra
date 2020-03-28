@@ -1,0 +1,20 @@
+---
+# defaults file for myfinance
+username: "builder"
+clientip: "192.168.100.71"
+
+mf:
+ mfsecureport: "8443"
+ dbserver: "postgres_mf"
+ dbport: "5432"
+ dbuser: "postgres"
+ dbpw: "password"
+ karaf_user: "karaf"
+ karaf_pw: "karaf"
+ http_enabled: "true"
+ ssl_pw: "password"
+ ssl_keypw: "password"
+ ssl_keystore: "devkeystore.jks"
+ version: "0.12.0-SNAPSHOT"
+ elastic_port: "9200"
+ kibana_port: "9001"

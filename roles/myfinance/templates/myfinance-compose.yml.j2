@@ -1,0 +1,120 @@
+version: '3.4'
+services:
+  {{mf.dbserver}}:
+    image: holgerfischer/myfinance:{{mf.version}}-mfdb
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints: [node.role == manager]
+    environment:
+      POSTGRES_PASSWORD: vulkan
+    volumes:
+      - "myfinancedata:/var/lib/postgresql/data"
+    networks:
+      - myfinance-network
+    ports:
+      - '{{mf.dbport}}:5432'
+  mf_db_model_upgrade:
+    image: holgerfischer/myfinance:{{mf.version}}-mfdbupgrade
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints: [node.role == manager]
+    environment:
+      DB_PW: {{mf.dbpw}}
+      DB_IMAGE: {{mf.dbserver}}
+      DB_USER: {{mf.dbuser}}
+    volumes:
+      - mfdblogs:/database/logs
+    networks:
+      - myfinance-network
+    depends_on:
+      - postgres_mf
+  myfinance:
+    image: holgerfischer/myfinance:{{mf.version}}-myfinance-full
+    tty: true
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints: [node.role == manager]
+    environment:
+      DB_PW: {{mf.dbpw}}
+      DB_IMAGE: {{mf.dbserver}}
+      DB_USER: {{mf.dbuser}}
+    ports:
+      - '1099:1099'
+      - '8101:8101'
+      - '44444:44444'
+      - '{{mf.mfsecureport}}:8443'
+      - '8182:8181'
+    volumes:
+      - "myfinancelogs:/MyFinance/data/log"
+      - "myfinanceconfig:/MyFinance/envconfig"  
+    networks:
+      - myfinance-network
+    depends_on:
+      - mf_db_model_upgrade
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080
+    networks:
+      - myfinance-network
+  visualizer:
+    image: dockersamples/visualizer:stable
+    ports:
+      - "9090:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    networks:
+      - myfinance-network
+  scheduler:
+    image: holgerfischer/myfinance:{{mf.version}}-scheduler
+    volumes:
+     - "/mnt/data/dumps:/var/dumps" 
+    networks:
+     - myfinance-network
+    depends_on:
+     - mf_db_model_upgrade
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.4.2
+    environment:
+      cluster.name: mf-cluster
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    volumes:
+      - esdata1:/usr/share/elasticsearch/data
+      - esconfig:/usr/share/elasticsearch/config
+    ports:
+      - {{mf.elastic_port}}:9200
+    networks:
+      - myfinance-network
+  kibana:
+    image: docker.elastic.co/kibana/kibana:6.4.2
+    environment:
+      server.host: localhost
+      server.port: 5601
+    ports:
+      - {{mf.kibana_port}}:5601
+    volumes:
+      - "kibanaconf:/usr/share/kibana/config"
+    networks:
+      - myfinance-network
+networks:
+  myfinance-network:
+volumes:
+  mfdblogs:
+  myfinancedata:
+  myfinancelogs:
+  myfinanceconfig:
+  esdata1:
+  esconfig:
+  kibanaconf:

@@ -1,0 +1,51 @@
+---
+  - name: install yum repo for docker
+    get_url:
+     url: https://download.docker.com/linux/centos/docker-ce.repo
+     dest: /etc/yum.repos.d/docker-ce.repo
+    tags:
+     - docker
+  - name: install docker
+    action: yum pkg=docker-ce state=present
+    tags:
+     - docker
+  - name: Create directory etc/docker
+    file: path=/etc/docker state=directory mode=0755  
+    tags:
+     - docker   
+  # necessary fuer openshift
+  - copy:
+     dest: '/etc/docker/daemon.json'
+     content: |
+      {
+       "insecure-registries" : ["172.30.0.0/16", "{{clientip}}:5000", "local.openshift:5000"]
+      }
+    notify: restart docker daemon
+    tags:
+     - docker
+  - lineinfile:
+     path: '/lib/systemd/system/docker.service'
+     regexp: '^ExecStart=/usr/bin/dockerd'
+     line: 'ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375'
+    notify: restart docker daemon
+    tags:
+     - docker
+  - name: create directory docker.service.d
+    file: path='/etc/systemd/system/docker.service.d' state=directory
+    tags:
+     - docker
+  - name: create file /etc/systemd/system/docker.service.d/docker.conf
+    file: path='/etc/systemd/system/docker.service.d/docker.conf' state=touch
+    notify: restart docker daemon
+    tags:
+     - docker
+  - copy:
+     dest: '/etc/systemd/system/docker.service.d/docker.conf'
+     content: |
+      [Service]
+      ExecStart=
+      ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H unix://var/run/docker.sock
+    notify: restart docker daemon
+    tags:
+     - docker
+

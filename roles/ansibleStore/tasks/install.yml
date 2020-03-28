@@ -1,0 +1,74 @@
+---
+ - name: Remove old ansible folder
+   file:
+    path: "/home/{{username}}/repo/dac/doc/install/ansible"
+    state: absent
+   tags:
+    - ansiblecopy
+ - name: Add ansible folder
+   file:
+    path: "/home/{{username}}/repo/dac/doc/install/ansible"
+    state: directory
+    mode: 0755
+    owner: "{{username}}" 
+   tags:
+    - ansiblecopy
+ - name: copy ansible file
+   copy:
+    src: ./site.yml
+    dest: "/home/{{username}}/repo/dac/doc/install/ansible/"
+    mode: 0755
+    owner: "{{username}}"
+   tags:
+    - ansiblecopy
+ - name: copy ansible file
+   copy:
+    src: ./mfBuildServer.yml
+    dest: "/home/{{username}}/repo/dac/doc/install/ansible/"
+    mode: 0755
+    owner: "{{username}}"
+   tags:
+    - ansiblecopy
+ - name: copy ansible file
+   copy:
+    src: ./myFinanceServer.yml
+    dest: "/home/{{username}}/repo/dac/doc/install/ansible/"
+    mode: 0755
+    owner: "{{username}}"
+   tags:
+    - ansiblecopy
+ - name: copy ansible file
+   copy:
+    src: ./environments
+    dest: "/home/{{username}}/repo/dac/doc/install/ansible/"
+    mode: 0755
+    owner: "{{username}}"
+   tags:
+    - ansiblecopy
+ - name: copy ansible file
+   copy:
+    src: ./ansible.cfg
+    dest: "/home/{{username}}/repo/dac/doc/install/ansible/"
+    mode: 0755
+    owner: "{{username}}"
+   tags:
+    - ansiblecopy
+ - name: copy ansible file
+   copy:
+    src: ./roles
+    dest: "/home/{{username}}/repo/dac/doc/install/ansible/"
+    mode: 0755
+    owner: "{{username}}"
+   tags:
+    - ansiblecopy
+ - name: copy group vars
+   copy:
+    src: ./group_vars
+    dest: "/home/{{username}}/repo/dac/doc/install/ansible/"
+    mode: 0755
+    owner: "{{username}}"
+   tags:
+    - ansiblecopy
+
+
+
