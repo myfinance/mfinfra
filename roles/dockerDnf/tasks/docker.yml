@@ -25,12 +25,12 @@
     file: path=/etc/docker state=directory mode=0755  
     tags:
      - docker   
-  # necessary fuer openshift
+  # necessary for local docker repositories
   - copy:
      dest: '/etc/docker/daemon.json'
      content: |
       {
-       "insecure-registries" : ["172.30.0.0/16", "{{clientip}}:5000", "local.openshift:5000"]
+       "insecure-registries" : ["172.30.0.0/16", "192.168.100.73:31003", "{{clientip}}:5000"]
       }
     notify: restart docker daemon
     tags:
