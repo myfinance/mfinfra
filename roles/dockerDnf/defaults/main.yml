@@ -1,4 +1,0 @@
----
-# defaults file for docker
- clientip: "{{ansible_default_ipv4.address}}"
- 

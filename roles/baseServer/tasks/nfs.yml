@@ -7,7 +7,7 @@
     mount: path="/mnt/data" src="{{nas_nfs_url}}" opts="rw" fstype="nfs" state="mounted"
     tags:
      - nfs
-  - name: set permission for mnt/data
-    file: dest=/mnt/data mode=0755 recurse=yes
-    tags:
-     - nfs
+#  - name: set permission for mnt/data
+#    file: dest=/mnt/data mode=0755 recurse=yes
+#    tags:
+#     - nfs

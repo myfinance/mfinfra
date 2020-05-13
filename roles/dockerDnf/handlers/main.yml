@@ -1,8 +1,0 @@
----
-# handlers file for docker
- - name: restart docker daemon
-   service:
-    name: docker
-    state: restarted
-   tags:
-    - docker

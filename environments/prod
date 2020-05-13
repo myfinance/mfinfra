@@ -1,5 +1,6 @@
 [kuberneteshost]
-kubernetes ansible_host=192.168.100.73 ansible_ssh_user=root ansible_python_interpreter=python3
+#kubernetes ansible_host=192.168.100.73 ansible_ssh_user=root ansible_python_interpreter=python3
+kubernetes_prod ansible_host=192.168.100.71 ansible_ssh_user=root ansible_python_interpreter=python3
 
 [devenv]
 DevEnv ansible_host=192.168.100.131 ansible_ssh_user=root

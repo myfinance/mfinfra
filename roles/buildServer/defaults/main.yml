@@ -6,9 +6,6 @@
   java_pkg: "{{download_folder}}java/jdk-{{java_version}}-linux-x64.rpm"
   maven_version: "3.5.4"
   maven_tar: "{{download_folder}}maven/apache-maven-{{maven_version}}-bin.tar.gz"
-  # vars for build user
-  username: "builder"
-  password: "$6$7SHA512PW"
   repouser: unknown 
   repopw: password
   repourl: "https://{{repouser}}:{{repopw}}@bitbucket.org/somerepo/dac.git"
@@ -21,3 +18,6 @@
    db_version: "10.5-alpine"
    user: "sonar"
    password: "sonar"
+  # vars for build user
+  username: "builder"
+  password: "$6$7SHA512PW"

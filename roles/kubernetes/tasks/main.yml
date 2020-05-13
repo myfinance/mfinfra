@@ -1,4 +1,10 @@
 ---
+- name: manual install of conntrack
+  dnf:
+   name: 'http://mirror.centos.org/centos/8/BaseOS/x86_64/os/Packages/conntrack-tools-1.4.4-9.el8.x86_64.rpm'
+   state: present
+  tags:
+   - kubernetes
 # tasks file for kubernetes
 - name: Download kubectl
   get_url:
@@ -39,10 +45,10 @@
   shell: helm repo add stable https://kubernetes-charts.storage.googleapis.com/ 
   tags:
    - kubernetes    
-#- name: add local nexus helm repo - this is created a step later
-#  shell: helm repo add local http://192.168.100.73:31001/repository/myhelmrepo/ 
-#  tags:
-#   - kubernetes       
+- name: add local nexus helm repo - this is created a step later
+  shell: helm repo add local http://192.168.100.73:31001/repository/myhelmrepo/ 
+  tags:
+   - kubernetes       
 - name: enable ingress plugin
   shell: minikube addons enable ingress
   tags:

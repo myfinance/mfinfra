@@ -2,3 +2,6 @@
 # vars file for baseServer
   nas_ip: "192.168.100.6"
   nas_nfs_url: "{{nas_ip}}://volume1/nfsshare"
+# vars for build user
+  username: "builder"
+  password: "$6$7SHA512PW"

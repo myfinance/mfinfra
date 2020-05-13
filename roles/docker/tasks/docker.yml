@@ -1,24 +1,40 @@
 ---
-  - name: install yum repo for docker
-    get_url:
-     url: https://download.docker.com/linux/centos/docker-ce.repo
-     dest: /etc/yum.repos.d/docker-ce.repo
+  #- name: add dnf repo for docker
+  #  shell: dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+  #  tags:
+  #   - docker  
+  - name: manual install of containerd
+    dnf:
+     enablerepo: 'https://download.docker.com/linux/centos/docker-ce.repo'
+     name: 'https://download.docker.com/linux/centos/7/x86_64/stable/Packages/containerd.io-1.2.6-3.3.el7.x86_64.rpm'
+     state: present
     tags:
-     - docker
-  - name: install docker
-    action: yum pkg=docker-ce state=present
+     - docker 
+  - name: install dnf docker
+    dnf:
+     enablerepo: 'https://download.docker.com/linux/centos/docker-ce.repo'
+     name: docker-ce
+     state: present
     tags:
-     - docker
+     - docker      
+  - name: enable docker service
+    shell: systemctl enable --now docker
+    tags:
+     - docker     
+  - name: disable firewalld DNS resolution work inside Docker containers, we must disable firewalld (a system reboot may be also needed)
+    shell: systemctl disable firewalld
+    tags:
+     - docker     
   - name: Create directory etc/docker
     file: path=/etc/docker state=directory mode=0755  
     tags:
      - docker   
-  # necessary fuer openshift
+  # necessary for local docker repositories
   - copy:
      dest: '/etc/docker/daemon.json'
      content: |
       {
-       "insecure-registries" : ["172.30.0.0/16", "{{clientip}}:5000", "local.openshift:5000"]
+       "insecure-registries" : ["172.30.0.0/16", "192.168.100.73:31003", "{{clientip}}:5000"]
       }
     notify: restart docker daemon
     tags:
@@ -47,5 +63,9 @@
       ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H unix://var/run/docker.sock
     notify: restart docker daemon
     tags:
-     - docker
+     - docker      
+  - name: login in dockerhub
+    shell: docker login -u {{docker.user}} -p {{docker.password}}
+    tags:
+     - docker      
 
