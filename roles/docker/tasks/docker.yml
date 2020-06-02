@@ -69,7 +69,7 @@
     tags:
      - docker  
   - name: cleanup old docker images to avoid full disk. Creates an entry like "0 2 * * docker system prune -a -f"
-   cron:
+    cron:
       name: "docker_cleanup"
       minute: "0"
       hour: "2"
