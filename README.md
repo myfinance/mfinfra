@@ -44,6 +44,7 @@ configure kubernetes and devenv-server: ansible-playbook site.yml --vault-id pro
 
 
 ### next step ###
- install myjenkins
+For development install myjenkins and build and deploy all other projects with jenkins
+Fro Production just install the helm-chart mfbundle
 
 

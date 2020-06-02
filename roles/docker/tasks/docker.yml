@@ -1,8 +1,8 @@
 ---
-  #- name: add dnf repo for docker
-  #  shell: dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-  #  tags:
-  #   - docker  
+  - name: add dnf repo for docker
+    shell: dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+    tags:
+     - docker  
   - name: manual install of containerd
     dnf:
      enablerepo: 'https://download.docker.com/linux/centos/docker-ce.repo'
@@ -67,5 +67,11 @@
   - name: login in dockerhub
     shell: docker login -u {{docker.user}} -p {{docker.password}}
     tags:
-     - docker      
+     - docker  
+  - name: cleanup old docker images to avoid full disk. Creates an entry like "0 2 * * docker system prune -a -f"
+   cron:
+      name: "docker_cleanup"
+      minute: "0"
+      hour: "2"
+      job: "docker system prune -a -f"         
 

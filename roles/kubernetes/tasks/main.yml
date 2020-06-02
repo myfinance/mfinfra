@@ -17,19 +17,23 @@
   get_url:
     url: https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
     dest: /usr/local/bin/minikube
-    mode: '0755'   
+    mode: '0755' 
   tags:
    - kubernetes     
 # firewall ausschalten
 - name: disable firewall
   shell: setenforce 0 
   tags:
-   - kubernetes 
+   - kubernetes  
 # start minikube
 - name: start minikube
-  shell: minikube start --vm-driver="none"
+  shell: minikube start --vm-driver="none" --kubernetes-version v1.17.0
   tags:
-   - kubernetes   
+   - kubernetes     
+- name: enable ingress plugin
+  shell: minikube addons enable ingress
+  tags:
+   - kubernetes     
 # add helm   
 - name: Retrieve helm binary archive.
   unarchive:
@@ -49,10 +53,7 @@
   shell: helm repo add local http://192.168.100.73:31001/repository/myhelmrepo/ 
   tags:
    - kubernetes       
-- name: enable ingress plugin
-  shell: minikube addons enable ingress
-  tags:
-   - kubernetes 
+
  
 
 
