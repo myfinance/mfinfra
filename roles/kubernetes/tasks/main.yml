@@ -48,11 +48,12 @@
 - name: add default helm repo
   shell: helm repo add stable https://kubernetes-charts.storage.googleapis.com/ 
   tags:
-   - kubernetes    
-- name: add local nexus helm repo - this is created a step later
-  shell: helm repo add local http://192.168.100.73:31001/repository/myhelmrepo/ 
-  tags:
-   - kubernetes       
+   - kubernetes  
+# nexus is only available after starting it on kubernetes later on     
+#- name: add local nexus helm repo - this is created a step later
+#  shell: helm repo add local http://192.168.100.73:31001/repository/myhelmrepo/ 
+#  tags:
+#   - kubernetes       
 
  
 
