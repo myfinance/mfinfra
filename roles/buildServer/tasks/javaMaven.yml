@@ -1,8 +1,9 @@
 --- 
-  - name: install java
-    action: yum pkg={{java_pkg}} state=present
-    tags:
-     - java
+  - name: Install java
+    dnf:
+     name: "{{ item }}"
+    with_items:
+     - "{{ java_pkg }}"   
   - name: create dir for maven
     file: path=/opt/maven state=directory
     tags:

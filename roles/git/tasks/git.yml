@@ -1,6 +1,6 @@
 ---
-  - name: Install some base yum package for git compile etc
-    yum:
+  - name: Install some base dnf package for git compile etc
+    dnf:
      name: "{{ item }}"
     with_items:
      - curl-devel

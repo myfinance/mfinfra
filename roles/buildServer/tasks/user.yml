@@ -2,7 +2,7 @@
   - name: Add the user
     user:
      name: '{{username}}'
-     comment: the user builder
+     comment: '{{username}}'
      uid: 1001
      #die wheel group ist bei centos automatisch mit sudo rechten in /etc/sudoers ausgestattet
      groups: wheel,docker
@@ -13,7 +13,7 @@
     lineinfile:
      path: '/home/{{username}}/.bash_profile'
      state: present
-     line: 'export JAVA_HOME=/usr/java/latest'
+     line: 'export JAVA_HOME=/usr/lib/jvm/java'
     tags:
      - builduser     
   - name: add m2 home variable

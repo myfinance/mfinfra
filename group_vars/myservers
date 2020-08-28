@@ -31,26 +31,6 @@
  repourl: "https://{{repouser}}:{{repopw}}@bitbucket.org/holgerfischer/dac.git"
 # vars file for git
  git_version: 2.19.0
-#vars for myfinance
- mf:
-  mfsecureport: "8443"
-  dbserver: "postgres_mf"
-  dbport: "5432"
-  dbuser: "postgres"
-  dbpw: "vulkan"
-  karaf_user: "karaf"
-  karaf_pw: "karaf"
-  http_enabled: "true"
-  ssl_pw: "password"
-  ssl_keypw: "password"
-  version: "0.13.0-SNAPSHOT"
-  elastic_port: "9200"
-  kibana_port: "9001"
-#  ssl_keystore: "prodkeystore.jks"
- sonar:
-  port: "9000"
-  version: "7.1-alpine"
-  db_version: "10.5-alpine"
-  user: "sonar"
-  password: "sonar"
+ java_pkg: "java-11-openjdk-devel"
+ ansible_python_interpreter: /usr/bin/python3
 

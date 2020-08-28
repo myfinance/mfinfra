@@ -7,13 +7,13 @@
   - name:  Add repository for npm
     shell: curl -sL https://rpm.nodesource.com/setup_12.x | bash -
     tags:
-     - node      
+     - node  
   - name: Install some tool yum packages for npm etc
-    yum:
+    dnf:
      name: "{{ item }}"
     with_items:
      #to install npm via maven
      - gcc-c++
      - nodejs
     tags:
-     - node       
+     - node            

@@ -2,5 +2,4 @@
 # tasks file for buildServer
  - import_tasks: javaMaven.yml
  - import_tasks: tools.yml
- - import_tasks: sonar.yml
  - import_tasks: user.yml

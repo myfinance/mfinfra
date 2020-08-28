@@ -47,4 +47,11 @@ configure kubernetes and devenv-server: ansible-playbook site.yml --vault-id pro
 For development install myjenkins and build and deploy all other projects with jenkins
 Fro Production just install the helm-chart mfbundle
 
+# create DevClient #
 
+install a base desktop version of centos with python3. 
+set the ip at the DHCP-Server 
+prepare passwordless communication from ansible host to the dev client: ssh-copy-id root@<your_ip> // public key auf die clients kopieren
+update the inventory-file with your IP to a development server(devenv) 
+Run ansible-playbook devenv.yml --vault-id prod@~/.vault_prod
+install intellij and vivaldi manually

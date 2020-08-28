@@ -2,22 +2,9 @@
 # vars file for buildServer
   # vars for java maven
   download_folder: /mnt/data/software/
-  java_version: 8u81
-  java_pkg: "{{download_folder}}java/jdk-{{java_version}}-linux-x64.rpm"
+  java_pkg: "java-11-openjdk-devel"
   maven_version: "3.5.4"
   maven_tar: "{{download_folder}}maven/apache-maven-{{maven_version}}-bin.tar.gz"
-  repouser: unknown 
-  repopw: password
-  repourl: "https://{{repouser}}:{{repopw}}@bitbucket.org/somerepo/dac.git"
-  docker:
-   user: theuser
-   password: thepw
-  sonar:
-   port: "9000"
-   version: "7.1-alpine"
-   db_version: "10.5-alpine"
-   user: "sonar"
-   password: "sonar"
   # vars for build user
-  username: "builder"
+  username: "holger"
   password: "$6$7SHA512PW"
