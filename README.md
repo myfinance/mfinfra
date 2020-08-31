@@ -54,4 +54,5 @@ set the ip at the DHCP-Server
 prepare passwordless communication from ansible host to the dev client: ssh-copy-id root@<your_ip> // public key auf die clients kopieren
 update the inventory-file with your IP to a development server(devenv) 
 Run ansible-playbook devenv.yml --vault-id prod@~/.vault_prod
+copy cert-files from root to your user to connect kubectl to minikube, because minikube is only running with user root. Look at roles/kubernetes/tasks/user for the files to copy
 install intellij and vivaldi manually

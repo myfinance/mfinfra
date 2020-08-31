@@ -1,0 +1,41 @@
+---
+  - name: Create a directory if it does not exist
+    file:
+     path: "/home/{{username}}/.kube/"
+     state: directory
+     mode: '0755'
+  - name: Create a directory if it does not exist
+    file:
+     path: "/home/{{username}}/.minikube/"
+     state: directory
+     mode: '0755'    
+  - name: Create a directory if it does not exist
+    file:
+     path: "/home/{{username}}/.minikube/profiles/minikube/"
+     state: directory
+     mode: '0755'         
+  - name: config kubectl to connect to minikube which is installed by root user
+    template:
+     src: config.j2
+     dest: "/home/{{username}}/.kube/config"
+     owner: "{{username}}"
+    tags:
+     - builduser    
+  #- name: Copy ca.crt for minikube
+  #  copy:
+  #    src:  /root/.minikube/ca.crt
+  #    dest: "/home/{{username}}/.minikube/ca.crt"
+  #    owner: "{{username}}" 
+  #    mode: '0755' 
+  - name: Copy client.crt for minikube
+    copy:
+      src:  /root/.minikube/profiles/minikube/client.crt
+      dest: "/home/{{username}}/.minikube/profiles/minikube/client.crt"
+      owner: "{{username}}"
+      mode: '0755'    
+  - name: Copy client.key for minikube
+    copy:
+      src:  /root/.minikube/profiles/minikube/client.key
+      dest: "/home/{{username}}/.minikube/profiles/minikube/client.key"
+      owner: "{{username}}" 
+      mode: '0755'                               
