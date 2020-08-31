@@ -30,10 +30,10 @@
   shell: minikube start --vm-driver="none" --kubernetes-version v1.17.0
   tags:
    - kubernetes     
-#- name: enable ingress plugin
-#  shell: minikube addons enable ingress
-#  tags:
-#   - kubernetes     
+- name: enable ingress plugin
+  shell: minikube addons enable ingress
+  tags:
+   - kubernetes     
 # add helm   
 - name: Retrieve helm binary archive.
   unarchive:
