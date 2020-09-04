@@ -55,4 +55,11 @@ prepare passwordless communication from ansible host to the dev client: ssh-copy
 update the inventory-file with your IP to a development server(devenv) 
 Run ansible-playbook devenv.yml --vault-id prod@~/.vault_prod
 copy cert-files from root to your user to connect kubectl to minikube, because minikube is only running with user root. Look at roles/kubernetes/tasks/user for the files to copy
-install intellij and vivaldi manually
+install intellij, sqirrel(with postgres) and vivaldi manually
+in squirrel: 
+modify postgres-driver - add extra classpath: plugins/postgres/lib
+drivername: org.postgresql.Driver
+add connection: jdbc:postgresql://host:port/database
+or use idea database navigator plugin
+copy res-file to home and modify the db-url: cp repo/mfbackend/distributions/mf-docker-images/docker/myfinance/dac.res ~
+

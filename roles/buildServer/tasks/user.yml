@@ -22,7 +22,14 @@
      state: present
      line: 'export M2_HOME=/opt/maven/current'
     tags:
-     - builduser     
+     - builduser  
+  - name: add DAC_LOGIN_INFO var
+    lineinfile:
+     path: '/home/{{username}}/.bash_profile'
+     state: present
+     line: 'export DAC_LOGIN_INFO=~/dac.res'
+    tags:
+     - builduser         
   - name: add java home and m2 to path
     lineinfile:
      path: '/home/{{username}}/.bash_profile'
