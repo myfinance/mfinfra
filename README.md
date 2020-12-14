@@ -61,5 +61,6 @@ modify postgres-driver - add extra classpath: plugins/postgres/lib
 drivername: org.postgresql.Driver
 add connection: jdbc:postgresql://host:port/database
 or use idea database navigator plugin
-copy res-file to home and modify the db-url: cp repo/mfbackend/distributions/mf-docker-images/docker/myfinance/dac.res ~
+copy res-file to home and modify the db-url: cp repo/mfbackend/distributions/mf-docker-images/docker/myfinance/dac.res ~ 
+
 

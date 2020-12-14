@@ -14,3 +14,4 @@
     become_method: sudo
     roles:
      - kubernetes
+     - git

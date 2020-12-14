@@ -27,15 +27,15 @@
   #    dest: "/home/{{username}}/.minikube/ca.crt"
   #    owner: "{{username}}" 
   #    mode: '0755' 
-  - name: Copy client.crt for minikube
-    copy:
-      src:  /root/.minikube/profiles/minikube/client.crt
-      dest: "/home/{{username}}/.minikube/profiles/minikube/client.crt"
-      owner: "{{username}}"
-      mode: '0755'    
-  - name: Copy client.key for minikube
-    copy:
-      src:  /root/.minikube/profiles/minikube/client.key
-      dest: "/home/{{username}}/.minikube/profiles/minikube/client.key"
-      owner: "{{username}}" 
-      mode: '0755'                               
+  #- name: Copy client.crt for minikube
+  #  copy:
+  #    src:  /root/.minikube/profiles/minikube/client.crt
+  #    dest: "/home/{{username}}/.minikube/profiles/minikube/client.crt"
+  #    owner: "{{username}}"
+  #    mode: '0755'    
+  #- name: Copy client.key for minikube
+  #  copy:
+  #    src:  /root/.minikube/profiles/minikube/client.key
+  #    dest: "/home/{{username}}/.minikube/profiles/minikube/client.key"
+  #    owner: "{{username}}" 
+  #    mode: '0755'                               
