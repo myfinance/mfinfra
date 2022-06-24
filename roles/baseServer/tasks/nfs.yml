@@ -4,7 +4,7 @@
     tags:
      - nfs    
   - name: mount fileshare
-    mount: path="/mnt/data" src="{{nas_nfs_url}}" opts="rw" fstype="nfs" state="mounted"
+    mount: path="/mnt/data" src="{{nas_nfs_url}}" opts="defaults" fstype="nfs" state="mounted"
     tags:
      - nfs
 #  - name: set permission for mnt/data

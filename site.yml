@@ -1,6 +1,6 @@
 ---
   # This is a sitewide playbook
   # filename: site.yml
-  - import_playbook: kubernetes.yml
-  - import_playbook: devenv.yml
+  #- import_playbook: kubernetes.yml
+  - import_playbook: microk8.yml
 

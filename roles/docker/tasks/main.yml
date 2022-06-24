@@ -1,6 +1,0 @@
----
-# tasks file for docker
- - import_tasks: docker.yml
- - import_tasks: dockerswarm.yml
- - import_tasks: user.yml
-

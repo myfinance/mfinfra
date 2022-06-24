@@ -1,8 +1,8 @@
 ---
-  - name: MyFinance DevEv
-    hosts: devenv
+  - name: microk8-Server
+    hosts: microk8hosts
     remote_user: holger
     become: true
     become_method: sudo
     roles:
-     - buildServer
+     - microk8

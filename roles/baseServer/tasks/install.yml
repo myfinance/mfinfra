@@ -1,15 +1,44 @@
----
-  #- name: upgrade all packages
-  #  yum:
-  #   name: '*'
-  #   state: latest
-  #   exclude: kernel*
-  - name: Install some base dnf package for git compile etc
-    dnf:
-     name: "{{ item }}"
+--- 
+  - name: Install some base packages for all distributions
+    package: name="{{ item }}" state=latest
     with_items:
      #allgemein hilfreiche tools
      - tree
      - wget
-     #needed for nfs
-     - nfs-utils
+     - vim
+     #to commit files 
+     - git 
+     - git-all  
+    tags:
+     - baseServer  
+     
+  - name: Install nfs packages for ubuntu
+    package: name=nfs-common
+    when: ansible_os_family == "Debian" # Debian 10,9,..,Ubuntu 20.04,18.04,e.t.c
+    tags:
+     - baseServer 
+     
+  - name: Install nfs packages for fedora
+    package: name=nfs-utils
+    when: ansible_os_family == "RedHat"   # CentOS 8, CentOS 7,Fedora 33, Amazon Linux 2, e.t.c 
+    tags:
+     - baseServer             
+     
+  - name: Install some base packages for fedora 
+    package: name="{{ item }}" state=latest
+    with_items:
+     #snap as install-tool (preinstalled on ubuntu)
+     - snapd
+     #for nfs 
+     - nfs-utils 
+    when: ansible_os_family == "RedHat"   # CentOS 8, CentOS 7,Fedora 33, Amazon Linux 2, e.t.c  
+    tags:
+     - baseServer   
+  # Snaps using classic confinement, such as code editors, also require a symlink
+  - name: Snap symlink
+    shell: ln -s /var/lib/snapd/snap /snap/ 
+    when: ansible_os_family == "RedHat"   # CentOS 8, CentOS 7,Fedora 33, Amazon Linux 2, e.t.c
+    tags:
+     - baseServer     
+ 
+

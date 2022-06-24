@@ -5,9 +5,7 @@
  nas_ip: "192.168.100.6"
  nas_nfs_url: "{{nas_ip}}://volume1/nfsshare"
 # vars file for buildServer
-# vars for java maven
- java_version: "8u181"
- maven_version: "3.5.4"
+
  docker:
   user: holgerfischer
   password: !vault |
@@ -28,9 +26,5 @@
           36623765376465653233393834323234353430343232646566633331613336383839353530306664
           6130373031633735320a653465323336376635303136346431383461626635643465343564396264
           3361
- repourl: "https://{{repouser}}:{{repopw}}@bitbucket.org/holgerfischer/dac.git"
-# vars file for git
- git_version: 2.19.0
- java_pkg: "java-11-openjdk-devel"
  ansible_python_interpreter: /usr/bin/python3
 

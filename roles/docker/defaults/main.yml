@@ -1,7 +1,0 @@
----
-# defaults file for docker
- clientip: "{{ansible_default_ipv4.address}}"
-# vars for build user
- username: "builder"
- password: "$6$7SHA512PW"
- 

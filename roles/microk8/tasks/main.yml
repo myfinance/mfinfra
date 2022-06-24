@@ -1,0 +1,36 @@
+---
+# tasks file for microk8
+  - name: Install microk8
+    snap:
+      name: microk8s
+      classic: yes
+    tags:
+     - microk8 
+     
+  - name: kubectl alias
+    shell: snap alias microk8s.kubectl kubectl
+    tags:
+     - microk8            
+
+  - name: enable addons
+    shell: microk8s enable dashboard dns registry helm3 ingress hostpath-storage host-access #istio prometheus metrics-server
+    tags:
+     - microk8
+     
+  - name: helm alias
+    shell: snap alias microk8s.helm3 helm
+    tags:
+     - microk8         
+     
+  - name: add user to microk8s group
+    shell: usermod -a -G microk8s '{{username}}' && chown -f -R {{username}} ~/.kube && microk8s config > ~/.kube/config
+    tags:
+     - microk8  
+     
+#this doesn't return with ansible. I don't know why. But you can execute direkte on the machine or reboot manualy     
+#  - name: reload the microk8 group 
+#    shell: newgrp microk8s
+#    tags:
+#    - microk8                  
+     
+   
