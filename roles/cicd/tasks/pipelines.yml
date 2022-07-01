@@ -1,0 +1,247 @@
+---
+ - name: Create a k8s namespace
+   kubernetes.core.k8s:
+    name: mfpipeline
+    api_version: v1
+    kind: Namespace
+    state: present
+   tags:
+    - myf_pipeline
+    
+ - name: Create PV
+   kubernetes.core.k8s:
+    definition:
+     apiVersion: v1
+     kind: PersistentVolume
+     metadata:
+      name: tkn-workspace
+     spec:
+      storageClassName: tknstorage
+      accessModes:
+       - ReadWriteOnce
+      capacity:
+       storage: 1Gi
+      hostPath:
+       path: /mnt/data/tkn/
+       type: DirectoryOrCreate 
+    state: present
+   tags:
+    - myf_pipeline  
+    
+ - name: Create PVC
+   kubernetes.core.k8s:
+    definition:   
+     apiVersion: v1
+     kind: PersistentVolumeClaim
+     metadata:
+      name: tkn-workspace-claim
+      namespace: mfpipeline
+     spec:
+      storageClassName: tknstorage
+      accessModes:
+       - ReadWriteOnce
+      resources:
+       requests:
+        storage: 1Gi    
+    state: present
+   tags:
+    - myf_pipeline  
+    
+ - name: Download git-clone-task to the cluster.
+   ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/tektoncd/catalog/main/task/git-clone/0.5/git-clone.yaml 
+    dest: ~/git-clone.yaml
+    mode: '0664'
+   tags:
+    - myf_pipeline     
+
+ - name: Apply git-clone-task to the cluster.
+   kubernetes.core.k8s:
+    state: present
+    namespace: mfpipeline
+    src: ~/git-clone.yaml 
+   tags:
+    - myf_pipeline  
+    
+ - name: Download maven-task to the cluster.
+   ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/tektoncd/catalog/main/task/maven/0.2/maven.yaml
+    dest: ~/maven.yaml
+    mode: '0664'
+   tags:
+    - myf_pipeline     
+
+ - name: Apply maven-task to the cluster.
+   kubernetes.core.k8s:
+    state: present
+    namespace: mfpipeline
+    src: ~/maven.yaml 
+   tags:
+    - myf_pipeline  
+    
+ - name: Download buildah-task to the cluster.
+   ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/tektoncd/catalog/main/task/buildah/0.2/buildah.yaml
+    dest: ~/buildah.yaml
+    mode: '0664'
+   tags:
+    - myf_pipeline     
+
+ - name: Apply buildah-task to the cluster.
+   kubernetes.core.k8s:
+    state: present
+    namespace: mfpipeline
+    src: ~/buildah.yaml 
+   tags:
+    - myf_pipeline  
+    
+ - name: Download helm-task to the cluster.
+   ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/tektoncd/catalog/main/task/helm-upgrade-from-source/0.3/helm-upgrade-from-source.yaml
+    dest: ~/helm.yaml
+    mode: '0664'
+   tags:
+    - myf_pipeline     
+
+ - name: Apply helm-task to the cluster.
+   kubernetes.core.k8s:
+    state: present
+    namespace: mfpipeline
+    src: ~/helm.yaml 
+   tags:
+    - myf_pipeline  
+    
+ - name: Download generate-build-id-task to the cluster.
+   ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/tektoncd/catalog/main/task/generate-build-id/0.1/generate-build-id.yaml
+    dest: ~/generate-build-id.yaml
+    mode: '0664'
+   tags:
+    - myf_pipeline     
+
+ - name: Apply generate-build-id-task to the cluster.
+   kubernetes.core.k8s:
+    state: present
+    namespace: mfpipeline
+    src: ~/generate-build-id.yaml 
+   tags:
+    - myf_pipeline                             
+    
+ - name: Create pipeline
+   kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: tekton.dev/v1beta1
+      kind: Pipeline
+      metadata:
+        name: mavenpipeline
+        namespace: mfpipeline
+      spec:
+        params:
+         - name: gitrevision
+           description: The git revision
+           default: dev
+         - name: gitrepositoryurl
+           description: The git repository url
+           default: https://github.com/myfinance/mfframework.git
+         - name: jobname
+           description: The name of the job and subdirectory in the workspace
+           default: mfframework        
+         - name: service-version
+           type: string
+           default: "0.0.1"                
+        workspaces:
+         - name: shared-workspace
+         - name: maven-settings
+        tasks:
+         - name: clone-sources
+           taskRef:
+            name: git-clone
+           params:
+            - name: url
+              value: $(params.gitrepositoryurl)
+            - name: revision 
+              value: $(params.gitrevision)
+            - name: deleteExisting
+              value: 'true'
+            - name: submodules
+              value: "false"
+            - name: subdirectory
+              value: $(params.jobname)
+           workspaces:
+            - name: output
+              workspace: shared-workspace
+         - name: get-build-id
+           taskRef:
+            name: generate-build-id
+           params:
+            - name: base-version
+              value: $(params.service-version)
+           runAfter:
+            - clone-sources                 
+         - name: maven-set-version
+           taskRef:
+            name: maven
+           params:
+            - name: CONTEXT_DIR
+              value: $(params.jobname)
+            - name: MAVEN_IMAGE
+              value: maven:3.8.4-eclipse-temurin-17-alpine
+            - name: GOALS 
+              value: 
+              - versions:set
+              - -DnewVersion=$(tasks.get-build-id.results.build-id)
+           runAfter:
+            - get-build-id
+           workspaces:
+            - name: maven-settings
+              workspace: maven-settings              
+            - name: source
+              workspace: shared-workspace                       
+         - name: maven-build
+           taskRef:
+            name: maven
+           params:
+            - name: CONTEXT_DIR
+              value: $(params.jobname)
+            - name: MAVEN_IMAGE
+              value: maven:3.8.4-eclipse-temurin-17-alpine
+            - name: GOALS 
+              value: 
+              - clean
+              - package
+           runAfter:
+            - maven-set-version
+           workspaces:
+            - name: maven-settings
+              workspace: maven-settings              
+            - name: source
+              workspace: shared-workspace                          
+   tags:
+    - myf_pipeline   
+    
+ - name: Create mfframework pipelinerunrun
+   kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        generateName: mfframeworkpipelinerun
+        namespace: mfpipeline
+      spec:
+        pipelineRef:
+         name: mavenpipeline
+        workspaces:
+         - name: shared-workspace
+           persistentVolumeClaim:
+            claimName: tkn-workspace-claim
+         - name: maven-settings
+           emptyDir: {}           
+   tags:
+    - myf_pipeline        
+    
+    
+    
+              
+    
