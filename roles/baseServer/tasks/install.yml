@@ -8,7 +8,9 @@
      - vim
      #to commit files 
      - git 
-     - git-all  
+     - git-all 
+     #to be able to build containers 
+     - buildah
     tags:
      - baseServer  
      

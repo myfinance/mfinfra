@@ -30,6 +30,7 @@ install ansible on fedora:
 curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 python3 get-pip.py --user
 python3 -m pip install --user ansible
+ansible-galaxy collection install kubernetes.core
 
 create .vault_prod in homedir with the vault-passwort - to use the encrypted passwords which are checked-in in the repository(root dir but not visible) you need the password from my keepass-file ;) if you can not get it recreate all secrets with your vault-password  ansible-vault encrypt_string --vault-id prod@~/.vault_prod 'thepasswaord' --name 'variable-name'
 update the inventory-file with your IPs to a kubernetes(kuberneteshost) environments/prod

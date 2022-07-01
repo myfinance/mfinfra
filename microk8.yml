@@ -5,4 +5,4 @@
     become: true
     become_method: sudo
     roles:
-     - microk8
+     - cicd
