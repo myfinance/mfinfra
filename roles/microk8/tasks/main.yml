@@ -26,11 +26,41 @@
     shell: usermod -a -G microk8s '{{username}}' && chown -f -R {{username}} ~/.kube && microk8s config > ~/.kube/config
     tags:
      - microk8  
+   
+
+  - name: Creates directory for registry files
+    file:
+     path: /var/snap/microk8s/current/args/certs.d/{{nexus_url}}
+     state: directory
+    tags:
+     - microk8       
+             
+  # necessary for local container repositories
+  - copy:
+     dest: '/var/snap/microk8s/current/args/certs.d/{{nexus_url}}/hosts.toml'
+     content: |
+      # /var/snap/microk8s/current/args/certs.d/{{nexus_url}}/hosts.toml
+      server = "http://{{nexus_url}}"
+
+      [host."http://{{nexus_url}}"]
+      capabilities = ["pull", "resolve"]
+    tags:
+     - microk8     
      
 #this doesn't return with ansible. I don't know why. But you can execute direkte on the machine or reboot manualy     
 #  - name: reload the microk8 group 
 #    shell: newgrp microk8s
 #    tags:
-#    - microk8                  
+#    - microk8  
+
+  - name: stop microk8s
+    shell: microk8s stop
+    tags:
+     - microk8  
+     
+  - name: start microk8s
+    shell: microk8s start
+    tags:
+     - microk8                       
      
    

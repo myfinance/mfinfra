@@ -146,10 +146,21 @@
            default: https://github.com/myfinance/mfframework.git
          - name: jobname
            description: The name of the job and subdirectory in the workspace
-           default: mfframework        
+           default: mfframework      
+         - name: containercontextdir
+           description: The name of subdir for the maven pom with the jib plugin config
+           default: mfcomposite              
          - name: service-version
            type: string
-           default: "0.0.1"                
+           default: "0.0.1"   
+         - name: SERVICE_NAME
+           type: string
+           default: "mfcomposite"     
+         - name: PORT
+           default: "30028" 
+         - name: stage
+           type: string
+           default: "dev"                                
         workspaces:
          - name: shared-workspace
          - name: maven-settings
@@ -209,16 +220,65 @@
             - name: GOALS 
               value: 
               - clean
-              - package
+              - -DtargetRepository=http://192.168.100.73:31001/repository/maven-releases/
+              - deploy
            runAfter:
             - maven-set-version
            workspaces:
             - name: maven-settings
               workspace: maven-settings              
             - name: source
-              workspace: shared-workspace                          
+              workspace: shared-workspace    
+         - name: container-build
+           taskRef:
+            name: maven
+           params:
+            - name: CONTEXT_DIR
+              value: $(params.jobname)/$(params.containercontextdir)
+            - name: MAVEN_IMAGE
+              value: maven:3.8.4-eclipse-temurin-17-alpine                 
+            - name: GOALS 
+              value: 
+              - compile
+              - jib:build
+              - -Djib.image-tag=192.168.100.73:31003/repository/mydockerrepo/holgerfischer/myfinance-mfcomposite:$(tasks.get-build-id.results.build-id)  
+           runAfter:
+            - maven-build
+           workspaces:
+            - name: maven-settings
+              workspace: maven-settings              
+            - name: source
+              workspace: shared-workspace  
+         - name: helm-upgrade
+           taskRef:
+            name: helm-upgrade-from-source
+           params:
+            - name: charts_dir
+              value: $(params.jobname)/helm
+            - name: release_version
+              value: $(tasks.get-build-id.results.build-id)
+            - name: release_name
+              value: "mfcomposite"
+            - name: overwrite_values
+              value: "image.version=$(tasks.get-build-id.results.build-id), stage=$(params.stage), $(params.SERVICE_NAME).mf_http_port_ext=$(params.PORT), repository=192.168.100.73:31003/repository/mydockerrepo/holgerfischer/myfinance-"
+            - name: release_namespace
+              value: mfdev
+           workspaces:
+            - name: source
+              workspace: shared-workspace
+           runAfter:
+            - container-build                                                  
    tags:
     - myf_pipeline   
+    
+ - name: Create mfdev ns
+   kubernetes.core.k8s:
+    name: mfdev
+    api_version: v1
+    kind: Namespace
+    state: present
+   tags:
+    - myf_pipeline    
     
  - name: Create mfframework pipelinerunrun
    kubernetes.core.k8s:
@@ -232,12 +292,18 @@
       spec:
         pipelineRef:
          name: mavenpipeline
+        params:
+         - name: jobname
+           value: mfframework
+         - name: service-version
+           value: "0.0.2"           
         workspaces:
          - name: shared-workspace
            persistentVolumeClaim:
             claimName: tkn-workspace-claim
          - name: maven-settings
-           emptyDir: {}           
+           persistentVolumeClaim:
+            claimName: tkn-workspace-claim          
    tags:
     - myf_pipeline        
     
