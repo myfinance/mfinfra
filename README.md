@@ -50,9 +50,14 @@ ansible all -m ping
 
 configure server: ansible-playbook site.yml --vault-id prod@~/.vault_prod
 
+### enable tekton trigger ###
+Tekton server(your k8 ingress server) has to be available from the internet (http) and you must configure your repos in GitHub
+Settings, then on Webhooks:
+Payload URL is you internet URL
+Content type: Change this to application/json.
+Token: the password you have saved as k8 secret (see Role CICD-pipelines)
 
 ### next step ###
-For development install myjenkins and build and deploy all other projects with jenkins
 For Production just install the helm-chart mfbundle
 
 

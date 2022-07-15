@@ -1,2 +1,10 @@
 ---
 # defaults file for cicd
+ nexus_image: sonatype/nexus3:3.22.0
+ nexuspvc: nexuspvc
+ nexusstorage: /mnt/data/nexus/
+ nexusstoragesize: 10Gi
+ nexus_port_intern: 8081
+ nexus_port: 31001
+ nexus_dockerrepo_port: 31003 
+ nexus_dockerrepo_intern: 31002

@@ -61,6 +61,12 @@
   - name: start microk8s
     shell: microk8s start
     tags:
-     - microk8                       
+     - microk8     
+     
+  - name: Pause for 1 minute to start the microk8 cluster
+    ansible.builtin.pause:
+      minutes: 1    
+    tags:
+     - microk8                          
      
    

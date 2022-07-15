@@ -8,6 +8,12 @@
 # vars for microk8
  nexus_url: "192.168.100.73:31003"
  
+# vars for CICD
+# nexus_image: "sonatype/nexus3:3.22.0"
+ nexusstorage: /mnt/data/nexus/
+ nexus_port: 31001
+ nexus_dockerrepo_port: 31003 
+ 
 # vars file for buildServer
  docker:
   user: holgerfischer
