@@ -1,0 +1,156 @@
+---
+ - name: Create trigger binding
+   kubernetes.core.k8s:
+    state: present
+    definition:    
+     apiVersion: triggers.tekton.dev/v1beta1
+     kind: TriggerBinding
+     metadata:
+      name: github-push-binding
+      namespace: mfpipeline
+     spec:
+      params:
+       - name: imageversion
+         value: $(body.head_commit.id)
+       - name: gitrepositoryurl
+         value: $(body.repository.clone_url) 
+       - name: reponame
+         value: $(body.repository.name)          
+   tags:
+    - pipeline_trigger           
+         
+ - name: Create trigger template
+   kubernetes.core.k8s:
+    state: present
+    definition:                  
+      apiVersion: triggers.tekton.dev/v1beta1
+      kind: TriggerTemplate
+      metadata:
+        name: github-push-template
+        namespace: mfpipeline
+      spec:
+        params:
+        - name: imageversion
+          description: The Image Tag of the Container Image
+          default: dev
+        - name: gitrepositoryurl
+          description: The git repository url
+        resourcetemplates:
+        - apiVersion: tekton.dev/v1beta1
+          kind: PipelineRun
+          metadata:
+            generateName: news-backend-simple-pipe-
+          spec:
+            pipelineRef:
+              name: mavenpipeline
+            params:
+            - name: jobname
+              value: $(tt.params.reponame)
+            - name: service-version
+              value: "0.0.2"              
+            - name: gitrepositoryurl
+              value: $(tt.params.gitrepositoryurl)
+            workspaces:
+             - name: shared-workspace
+               persistentVolumeClaim:
+                claimName: tkn-workspace-claim
+             - name: maven-settings
+               persistentVolumeClaim:
+                claimName: tkn-workspace-claim   
+   tags:
+    - pipeline_trigger  
+  
+ - name: Create EventListener
+   kubernetes.core.k8s:
+    state: present
+    definition:      
+      apiVersion: triggers.tekton.dev/v1beta1
+      kind: EventListener
+      metadata:
+        name: github-new-push-listener
+        namespace: mfpipeline
+      spec:
+        triggers:
+          - name: github-new-push-listener
+            interceptors:
+              - ref:
+                  name: "github"
+                params:
+                  - name: "secretRef"
+                    value:
+                      secretName: github-secret
+                      secretKey: secretToken
+                  - name: "eventTypes"
+                    value: ["push"]
+              - name: "only deploy on pushes to main branch"
+                ref:
+                  name: "cel"
+                params:
+                  - name: "filter"
+                    value: "body.ref in ['refs/heads/dev']"
+            bindings:
+              - ref: github-push-binding
+            template:
+              ref: github-push-template
+        resources:
+          kubernetesResource:
+            spec:
+              template:
+                spec:
+                  containers:
+                    - resources:
+                        requests:
+                          memory: "64Mi"
+                          cpu: "250m"
+                        limits:
+                          memory: "128Mi"
+                          cpu: "500m"    
+   tags:
+    - pipeline_trigger   
+  
+  
+ # secret and pw are base 64 encode: echo -n 'github-secret' | base64
+ - name: Create secret
+   kubernetes.core.k8s:
+    state: present
+    definition:    
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: github-secret
+        namespace: mfpipeline        
+      type: Opaque
+      data:
+        secretToken: dnVsa2Fu
+   tags:        
+    - pipeline_trigger        
+ 
+ - name: Create ingress for eventlistener
+   kubernetes.core.k8s:
+    state: present
+    definition:                                                
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: pushlistener-ingress
+        namespace: mfpipeline
+        annotations:
+          nginx.ingress.kubernetes.io/rewrite-target: /
+      spec:
+        rules:
+        - http:
+            paths:
+            - path: /push
+              pathType: Prefix
+              backend:
+                service:
+                  name: el-github-new-push-listener
+                  port:
+                    number: 8080 
+   tags:
+    - pipeline_trigger                    
+    
+    
+    
+              
+    

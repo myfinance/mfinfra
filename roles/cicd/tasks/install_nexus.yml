@@ -1,0 +1,125 @@
+---
+ - name: Create a nexus namespace
+   kubernetes.core.k8s:
+    name: nexus
+    api_version: v1
+    kind: Namespace
+    state: present
+   tags:
+    - nexus
+    
+ - name: Create Nexus PV
+   kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: PersistentVolume
+      metadata:
+        name: nexusstorage
+      spec:
+        storageClassName: nexusstorage
+        accessModes:
+          - ReadWriteOnce
+        capacity:
+          storage: 10Gi
+        hostPath:
+          path: "{{ nexusstorage }}"
+          type: DirectoryOrCreate 
+   tags:
+    - nexus           
+          
+ - name: Create nexus pvc
+   kubernetes.core.k8s:
+    state: present
+    definition:   
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: "{{ nexuspvc }}"
+        namespace: nexus
+      spec:
+        storageClassName: nexusstorage
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: "{{ nexusstoragesize }}"
+   tags:
+    - nexus                          
+ 
+ - name: deploy Nexus 
+   kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: nexus
+        namespace: nexus
+      spec:
+        selector:
+          matchLabels:
+            app: nexus
+        replicas: 1
+        template:
+          metadata:
+            labels:
+              app: nexus
+          spec:
+            containers:
+              - name: nexus
+                image: "{{nexus_image}}"
+                ports:
+                  - name: nexus-port
+                    containerPort: "{{nexus_port_intern}}"
+                  - name: dockerrepo-port
+                    containerPort: "{{nexus_dockerrepo_intern}}"            
+                volumeMounts:
+                  - name: nexusdata
+                    mountPath: /nexus-data
+            volumes:
+              - name: nexusdata
+                persistentVolumeClaim:
+                    claimName: "{{nexuspvc}}"
+   tags:
+    - nexus                            
+                    
+ - name: Create nexus service
+   kubernetes.core.k8s:
+    state: present
+    definition:       
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: nexus
+        namespace: nexus
+      spec:
+        type: NodePort
+        ports:
+          - name: ui
+            port: "{{ nexus_port_intern }}"
+            nodePort: "{{ nexus_port }}"
+        selector:
+          app: nexus    
+   tags:
+    - nexus               
+          
+ - name: Create nexus container registry service
+   kubernetes.core.k8s:
+    state: present
+    definition:    
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: nexusdocker
+        namespace: nexus
+      spec:
+        type: NodePort
+        ports:
+          - name: ui
+            port: "{{ nexus_dockerrepo_intern }}"
+            nodePort: "{{ nexus_dockerrepo_port }}"
+        selector:
+          app: nexus 
+   tags:
+    - nexus                                      
