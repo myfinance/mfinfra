@@ -45,9 +45,7 @@
               name: mavenpipeline
             params:
             - name: jobname
-              value: $(tt.params.reponame)
-            - name: service-version
-              value: "0.0.2"              
+              value: $(tt.params.reponame)           
             - name: gitrepositoryurl
               value: $(tt.params.gitrepositoryurl)
             workspaces:

@@ -1,4 +1,4 @@
----    
+---             
  - name: Create pipeline
    kubernetes.core.k8s:
     state: present
@@ -54,14 +54,25 @@
            workspaces:
             - name: output
               workspace: shared-workspace
+         - name: getversion
+           taskRef:
+            name: getversion
+           params:
+            - name: CONTEXT_DIR
+              value: $(params.jobname)            
+           workspaces:
+            - name: source
+              workspace: shared-workspace            
+           runAfter:
+            - clone-sources    
          - name: get-build-id
            taskRef:
             name: generate-build-id
            params:
             - name: base-version
-              value: $(params.service-version)
+              value: $(tasks.getversion.results.version)
            runAfter:
-            - clone-sources                 
+            - getversion                           
          - name: maven-set-version
            taskRef:
             name: maven

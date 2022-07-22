@@ -126,3 +126,42 @@
     src: ~/generate-build-id.yaml 
    tags:
     - pipeline_prepare  
+    
+ - name: Create version task
+   kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: tekton.dev/v1beta1
+      kind: Task
+      metadata:
+        name: getversion
+        namespace: mfpipeline
+        annotations:
+          description: |
+                  A simple task that reads the version from a file
+      spec:
+        results:
+          - name: version
+            description: the version
+          - name: current-date-human-readable
+            description: The current date in human readable format
+        workspaces:
+          - name: source
+            description: The workspace consisting of the got repo
+        params:             
+          - name: CONTEXT_DIR
+            description: The name of the job and subdirectory in the workspace             
+        steps:
+          - name: print-date-unix-timestamp
+            image: bash:latest
+            script: |
+              #!/usr/bin/env bash
+              version=$(cat $(workspaces.source.path)/$(params.CONTEXT_DIR)/version.txt)  
+              echo ${version} | tr -d "\n" | tee $(results.version.path)      
+          - name: print-date-human-readable
+            image: bash:latest
+            script: |
+              #!/usr/bin/env bash
+              date | tee $(results.current-date-human-readable.path)    
+   tags:
+    - pipeline_prepare     
