@@ -10,29 +10,23 @@
         namespace: mfpipeline
       spec:
         params:
+         - name: commitid
+           description: The git commitid
          - name: gitrevision
            description: The git revision
-           default: dev
+           default: dev           
          - name: gitrepositoryurl
            description: The git repository url
            default: https://github.com/myfinance/mfframework.git
          - name: jobname
            description: The name of the job and subdirectory in the workspace
-           default: mfframework      
-         - name: containercontextdir
-           description: The name of subdir for the maven pom with the jib plugin config
-           default: mfcomposite              
-         - name: service-version
+           default: mfframework                          
+         - name: MVN_REPO
            type: string
-           default: "0.0.1"   
-         - name: SERVICE_NAME
+           default: "http://192.168.100.73:31001/repository/maven-releases/"     
+         - name: Container_REPO
            type: string
-           default: "mfcomposite"     
-         - name: PORT
-           default: "30028" 
-         - name: stage
-           type: string
-           default: "dev"                                
+           default: "192.168.100.73:31003/repository/mydockerrepo/"                                                      
         workspaces:
          - name: shared-workspace
          - name: maven-settings
@@ -64,29 +58,21 @@
             - name: source
               workspace: shared-workspace            
            runAfter:
-            - clone-sources    
-         - name: get-build-id
-           taskRef:
-            name: generate-build-id
-           params:
-            - name: base-version
-              value: $(tasks.getversion.results.version)
-           runAfter:
-            - getversion                           
+            - clone-sources                             
          - name: maven-set-version
            taskRef:
             name: maven
            params:
             - name: CONTEXT_DIR
-              value: $(params.jobname)
+              value: $(params.jobname)            
             - name: MAVEN_IMAGE
               value: maven:3.8.4-eclipse-temurin-17-alpine
             - name: GOALS 
               value: 
               - versions:set
-              - -DnewVersion=$(tasks.get-build-id.results.build-id)
+              - -DnewVersion=$(tasks.getversion.results.version)$(params.commitid)
            runAfter:
-            - get-build-id
+            - getversion
            workspaces:
             - name: maven-settings
               workspace: maven-settings              
@@ -103,7 +89,7 @@
             - name: GOALS 
               value: 
               - clean
-              - -DtargetRepository=http://192.168.100.73:31001/repository/maven-releases/
+              - -DtargetRepository=$(params.MVN_REPO)
               - deploy
            runAfter:
             - maven-set-version
@@ -117,14 +103,14 @@
             name: maven
            params:
             - name: CONTEXT_DIR
-              value: $(params.jobname)/$(params.containercontextdir)
+              value: $(params.jobname)
             - name: MAVEN_IMAGE
               value: maven:3.8.4-eclipse-temurin-17-alpine                 
             - name: GOALS 
               value: 
-              - compile
+              - package
               - jib:build
-              - -Djib.image-tag=192.168.100.73:31003/repository/mydockerrepo/holgerfischer/myfinance-mfcomposite:$(tasks.get-build-id.results.build-id)  
+              - -Djib.container-repo=$(params.Container_REPO) 
            runAfter:
             - maven-build
            workspaces:
@@ -139,18 +125,18 @@
             - name: charts_dir
               value: $(params.jobname)/helm
             - name: release_version
-              value: $(tasks.get-build-id.results.build-id)
+              value: $(tasks.getversion.results.version)$(params.commitid)
             - name: release_name
               value: "mfcomposite"
             - name: overwrite_values
-              value: "image.version=$(tasks.get-build-id.results.build-id), stage=$(params.stage), $(params.SERVICE_NAME).mf_http_port_ext=$(params.PORT), repository=192.168.100.73:31003/repository/mydockerrepo/holgerfischer/myfinance-"
+              value: "image.version=$(tasks.getversion.results.version)$(params.commitid), stage=dev, mfcomposite.mf_http_port_ext=30028, repository=192.168.100.73:31003/repository/mydockerrepo/holgerfischer/myfinance-"
             - name: release_namespace
               value: mfdev
            workspaces:
             - name: source
               workspace: shared-workspace
            runAfter:
-            - container-build                                                  
+            - container-build                                                               
    tags:
     - myf_pipeline   
     
