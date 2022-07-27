@@ -47,6 +47,45 @@
    tags:
     - pipeline_prepare  
     
+ - name: Create PV
+   kubernetes.core.k8s:
+    definition:
+     apiVersion: v1
+     kind: PersistentVolume
+     metadata:
+      name: tkn-deployrepo
+     spec:
+      storageClassName: tkndeploystorage
+      accessModes:
+       - ReadWriteOnce
+      capacity:
+       storage: 1Gi
+      hostPath:
+       path: /mnt/data/tkndeploy/
+       type: DirectoryOrCreate 
+    state: present
+   tags:
+    - pipeline_prepare  
+    
+ - name: Create PVC
+   kubernetes.core.k8s:
+    definition:   
+     apiVersion: v1
+     kind: PersistentVolumeClaim
+     metadata:
+      name: tkn-deployrepo-claim
+      namespace: mfpipeline
+     spec:
+      storageClassName: tkndeploystorage
+      accessModes:
+       - ReadWriteOnce
+      resources:
+       requests:
+        storage: 1Gi    
+    state: present
+   tags:
+    - pipeline_prepare    
+    
  - name: Download git-clone-task to the cluster.
    ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/tektoncd/catalog/main/task/git-clone/0.5/git-clone.yaml 
@@ -94,36 +133,36 @@
     src: ~/buildah.yaml 
    tags:
     - pipeline_prepare  
-    
- - name: Download helm-task to the cluster.
+        
+ - name: Download git-cli-task to the cluster.
    ansible.builtin.get_url:
-    url: https://raw.githubusercontent.com/tektoncd/catalog/main/task/helm-upgrade-from-source/0.3/helm-upgrade-from-source.yaml
-    dest: ~/helm.yaml
+    url: https://raw.githubusercontent.com/tektoncd/catalog/main/task/git-cli/0.3/git-cli.yaml
+    dest: ~/gitcli.yaml
     mode: '0664'
    tags:
     - pipeline_prepare     
 
- - name: Apply helm-task to the cluster.
+ - name: Apply git-cli-task to the cluster.
    kubernetes.core.k8s:
     state: present
     namespace: mfpipeline
-    src: ~/helm.yaml 
+    src: ~/gitcli.yaml 
    tags:
     - pipeline_prepare  
     
- - name: Download generate-build-id-task to the cluster.
+ - name: Download yaml-edit-task to the cluster.
    ansible.builtin.get_url:
-    url: https://raw.githubusercontent.com/tektoncd/catalog/main/task/generate-build-id/0.1/generate-build-id.yaml
-    dest: ~/generate-build-id.yaml
+    url: https://raw.githubusercontent.com/tektoncd/catalog/main/task/yq/0.2/yq.yaml
+    dest: ~/yq.yaml
     mode: '0664'
    tags:
     - pipeline_prepare     
 
- - name: Apply generate-build-id-task to the cluster.
+ - name: Apply yaml-edit-task to the cluster.
    kubernetes.core.k8s:
     state: present
     namespace: mfpipeline
-    src: ~/generate-build-id.yaml 
+    src: ~/yq.yaml 
    tags:
     - pipeline_prepare  
     
@@ -164,4 +203,5 @@
               #!/usr/bin/env bash
               date | tee $(results.current-date-human-readable.path)    
    tags:
-    - pipeline_prepare     
+    - pipeline_prepare       
+                               

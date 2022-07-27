@@ -60,7 +60,13 @@
                 claimName: tkn-workspace-claim
              - name: maven-settings
                persistentVolumeClaim:
-                claimName: tkn-workspace-claim   
+                claimName: tkn-workspace-claim  
+             - name: cdrepo
+               persistentVolumeClaim:
+                claimName: tkn-deployrepo-claim      
+             - name: git-config
+               persistentVolumeClaim:
+                claimName: tkn-workspace-claim                           
    tags:
     - pipeline_trigger  
   
@@ -127,7 +133,7 @@
       data:
         secretToken: dnVsa2Fu
    tags:        
-    - pipeline_trigger        
+    - pipeline_trigger         
  
  - name: Create ingress for eventlistener
    kubernetes.core.k8s:
