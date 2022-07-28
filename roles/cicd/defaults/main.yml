@@ -8,3 +8,5 @@
  nexus_port: 31001
  nexus_dockerrepo_port: 31003 
  nexus_dockerrepo_intern: 31002
+ gittoken: thetoken
+ repouser: holgerfischer

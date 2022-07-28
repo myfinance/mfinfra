@@ -29,7 +29,7 @@
            default: "192.168.100.73:31003/repository/mydockerrepo/"  
          - name: deploymentrepo
            description: The git repository url of the deployment repo
-           default: https://holgerfischer:20ed4c7d27256b9bb566a9738f05965614823575@github.com/myfinance/mfdeployment.git                                                                                              
+           default: https://{{ repouser }}:{{ gittoken }}@github.com/myfinance/mfdeployment.git                                                                                              
         workspaces:
          - name: shared-workspace
          - name: maven-settings
