@@ -2,6 +2,8 @@
 # tasks file for baseServer
  - import_tasks: install_nexus.yml
  - import_tasks: install_tekton.yml
- - import_tasks: pipeline_prepare.yml   
+ - import_tasks: pipeline_prepare.yml 
+ - import_tasks: maventaskwithdockersidecar.yml  
  - import_tasks: pipelines.yml  
- - import_tasks: pipeline_trigger.yml      
+ - import_tasks: pipeline_trigger.yml 
+ - import_tasks: cd.yml  

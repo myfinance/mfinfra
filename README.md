@@ -57,6 +57,10 @@ Payload URL is you internet URL
 Content type: Change this to application/json.
 Token: the password you have saved as k8 secret (see Role CICD-pipelines)
 
+### get the argo cd init pw
+
+get initpw to user admin with: kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 –d
+
 ### next step ###
 For Production just install the helm-chart mfbundle
 
