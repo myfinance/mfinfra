@@ -1,0 +1,110 @@
+---
+ - name: Create argocd ns
+   kubernetes.core.k8s:
+    name: argocd
+    api_version: v1
+    kind: Namespace
+    state: present
+   tags:
+    - cd  
+# tasks file for cicd
+ - name: install argocd
+   shell: kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+   tags:
+    - cd
+     
+
+ - name: ingress for ArgoCD-Frontend
+   kubernetes.core.k8s:
+    state: present
+    definition:
+     apiVersion: networking.k8s.io/v1
+     kind: Ingress
+     metadata:
+      name: argocd-ingress
+      namespace: argocd 
+      annotations:
+       kubernetes.io/ingress.class: nginx
+       nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+       nginx.ingress.kubernetes.io/ssl-passthrough: "true" 
+       nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+     spec:
+      rules:
+       - host: "argo.mylocaldomain"
+         http:
+          paths:
+           - path: /
+             pathType: Prefix
+             backend:
+              service:
+               name: argocd-server
+               port: 
+                number: 443
+   tags:
+    - cd
+    
+ - name: cd pipeline 
+   kubernetes.core.k8s:
+    state: present
+    definition:    
+      apiVersion: argoproj.io/v1alpha1
+      kind: Application
+      metadata:
+        name: myfinance-dev
+        annotations:
+        namespace: argocd
+      spec:
+        source:
+          path: helm-chart
+          repoURL: https://github.com/myfinance/mfdeployment.git
+          targetRevision: dev
+          helm:
+           valueFiles:
+            - values_base.yaml
+            - env/values_dev.yaml
+            - versions/versions_dev.yaml            
+        destination:
+          namespace: mfdev
+          server: https://kubernetes.default.svc
+        syncPolicy:
+          automated:
+            prune: true
+            selfHeal: true
+          syncOptions:
+            - CreateNamespace=true
+        project: default  
+   tags:
+    - cd  
+    
+ - name: cd pipeline prod 
+   kubernetes.core.k8s:
+    state: present
+    definition:    
+      apiVersion: argoproj.io/v1alpha1
+      kind: Application
+      metadata:
+        name: myfinance-prod
+        annotations:
+        namespace: argocd
+      spec:
+        source:
+          path: helm-chart
+          repoURL: https://github.com/myfinance/mfdeployment.git
+          targetRevision: dev
+          helm:
+           valueFiles:
+            - values_base.yaml
+            - env/values_prod.yaml
+            - versions/versions_prod.yaml  
+        destination:
+          namespace: mfprod
+          server: https://kubernetes.default.svc
+        syncPolicy:
+          automated:
+            prune: true
+            selfHeal: true
+          syncOptions:
+            - CreateNamespace=true
+        project: default  
+   tags:
+    - cd            
