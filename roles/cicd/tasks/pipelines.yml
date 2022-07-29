@@ -149,7 +149,7 @@
               value: 
                - "helm-chart/versions/versions_dev.yaml"
             - name: expression
-              value: '(.mfframework.imageversion = \"$(tasks.getversion.results.version)$(params.commitid)\")'
+              value: '(.$(params.jobname).imageversion = \"$(tasks.getversion.results.version)$(params.commitid)\")'
            workspaces:
             - name: source
               workspace: cdrepo            
