@@ -94,8 +94,16 @@
             - name: GOALS 
               value: 
               - clean
+              - deploy              
               - -DtargetRepository=$(params.MVN_REPO)
-              - deploy
+              - -Pjacoco 
+              - -Dsonar.jacoco.reportPaths=./jacoco-ut.exec
+              - -Dsonar.jacoco.itReportPath=./jacoco-it.exec 
+              - org.sonarsource.scanner.maven:sonar-maven-plugin:sonar 
+              - -Dsonar.projectKey=myfinance_$(params.jobname)
+              - -Dsonar.organization=myfinance 
+              - -Dsonar.host.url=https://sonarcloud.io 
+              - -Dsonar.login=15c6a48657993c0485c6f8a8bd4dceb77bbd2ac3                        
            runAfter:
             - maven-set-version
            workspaces:

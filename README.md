@@ -61,6 +61,13 @@ Token: the password you have saved as k8 secret (see Role CICD-pipelines)
 
 get initpw to user admin with: kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 –d
 
+### setup sonar-projekts
+
+go to https://sonarcloud.io/
+- organisation myfinance -> administration -> projekt management -> analyse new projects: add all new projekts
+-> the all projekts will be scanned after each commit, but you will get no feedback to your pipeline and you get no code coverage
+-> projekt -> administration -> analysis methode -> other ci -> disable autiomatic analysis
+
 ### next step ###
 For Production just install the helm-chart mfbundle
 
