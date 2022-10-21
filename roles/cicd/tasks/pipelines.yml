@@ -155,7 +155,7 @@
            params:
             - name: files
               value: 
-               - "helm-chart/versions/versions_dev.yaml"
+               - "helm-chart/versions/versions_test.yaml"
             - name: expression
               value: '(.$(params.jobname).imageversion = \"$(tasks.getversion.results.version)$(params.commitid)\")'
            workspaces:
@@ -176,7 +176,7 @@
               value: holger@hfischer.org         
             - name: GIT_SCRIPT
               value: |
-               git add helm-chart/versions/versions_dev.yaml
+               git add helm-chart/versions/versions_test.yaml
                git commit -m "updated helm cart with Image Version '$(tasks.getversion.results.version)$(params.commitid)' for $(params.jobname)"
                git push origin HEAD:dev 
            runAfter:
