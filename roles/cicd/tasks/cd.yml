@@ -76,6 +76,39 @@
    tags:
     - cd  
     
+ - name: cd pipeline 
+   kubernetes.core.k8s:
+    state: present
+    definition:    
+      apiVersion: argoproj.io/v1alpha1
+      kind: Application
+      metadata:
+        name: myfinance-test
+        annotations:
+        namespace: argocd
+      spec:
+        source:
+          path: helm-chart
+          repoURL: https://github.com/myfinance/mfdeployment.git
+          targetRevision: dev
+          helm:
+           valueFiles:
+            - values_base.yaml
+            - env/values_test.yaml
+            - versions/versions_test.yaml            
+        destination:
+          namespace: mftest
+          server: https://kubernetes.default.svc
+        syncPolicy:
+          automated:
+            prune: true
+            selfHeal: true
+          syncOptions:
+            - CreateNamespace=true
+        project: default  
+   tags:
+    - cd     
+    
  - name: cd pipeline prod 
    kubernetes.core.k8s:
     state: present
