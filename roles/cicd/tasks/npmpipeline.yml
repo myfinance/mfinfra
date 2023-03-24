@@ -119,7 +119,11 @@
             name: kaniko
            params:
             - name: IMAGE
-              value: $(params.Container_REPO)$(params.Container_Name_Prefix)$(params.jobname):$(tasks.getversion.results.version)$(params.commitid)                 
+              value: $(params.Container_REPO)$(params.Container_Name_Prefix)$(params.jobname):$(tasks.getversion.results.version)$(params.commitid)      
+            - name: DOCKERFILE
+              value: $(params.jobname)/Dockerfile
+            - name: CONTEXT
+              value: $(params.jobname)                                       
            runAfter:
             - npm-build
            workspaces:           
