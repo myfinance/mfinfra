@@ -203,7 +203,39 @@
               #!/usr/bin/env bash
               date | tee $(results.current-date-human-readable.path)    
    tags:
-    - pipeline_prepare       
+    - pipeline_prepare      
+    
+ - name: Download npm-task to the cluster.
+   ansible.builtin.get_url:
+    url: https://api.hub.tekton.dev/v1/resource/tekton/task/npm/0.1/raw
+    dest: ~/npm.yaml
+    mode: '0664'
+   tags:
+    - pipeline_prepare     
+
+ - name: Apply npm-task to the cluster.
+   kubernetes.core.k8s:
+    state: present
+    namespace: mfpipeline
+    src: ~/npm.yaml 
+   tags:   
+    - pipeline_prepare    
+    
+ - name: Download kaniko-task to the cluster.
+   ansible.builtin.get_url:
+    url: https://api.hub.tekton.dev/v1/resource/tekton/task/kaniko/0.6/raw
+    dest: ~/kaniko.yaml
+    mode: '0664'
+   tags:
+    - pipeline_prepare     
+
+ - name: Apply kaniko-task to the cluster.
+   kubernetes.core.k8s:
+    state: present
+    namespace: mfpipeline
+    src: ~/kaniko.yaml 
+   tags:   
+    - pipeline_prepare          
     
                                   
                                

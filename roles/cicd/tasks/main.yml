@@ -6,4 +6,6 @@
  - import_tasks: maventaskwithdockersidecar.yml  
  - import_tasks: pipelines.yml  
  - import_tasks: pipeline_trigger.yml 
+ - import_tasks: npmpipeline.yml 
+ - import_tasks: npm_pipeline_trigger.yml   
  - import_tasks: cd.yml  
