@@ -1,0 +1,178 @@
+---              
+ - name: Create npmpipeline
+   kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: tekton.dev/v1beta1
+      kind: Pipeline
+      metadata:
+        name: npmpipeline
+        namespace: mfpipeline
+      spec:
+        params:
+         - name: commitid
+           description: The git commitid
+         - name: gitrevision
+           description: The git revision
+           default: dev           
+         - name: gitrepositoryurl
+           description: The git repository url
+           default: https://github.com/myfinance/mfframework.git
+         - name: jobname
+           description: The name of the job and subdirectory in the workspace
+           default: mfframework                           
+         - name: Container_REPO
+           type: string
+           default: "192.168.100.73:31003/repository/mydockerrepo/"  
+         - name: Container_Name_Prefix
+           type: string
+           default: "holgerfischer/myfinance-"             
+         - name: deploymentrepo
+           description: The git repository url of the deployment repo
+           default: https://{{ repouser }}:{{ gittoken }}@github.com/myfinance/mfdeployment.git                                                                                              
+        workspaces:
+         - name: shared-workspace
+         - name: cdrepo
+         - name: git-config
+        tasks:
+         - name: clone-sources
+           taskRef:
+            name: git-clone
+           params:
+            - name: url
+              value: $(params.gitrepositoryurl)
+            - name: revision 
+              value: $(params.gitrevision)
+            - name: deleteExisting
+              value: 'true'
+            - name: submodules
+              value: "false"
+            - name: subdirectory
+              value: $(params.jobname)
+           workspaces:
+            - name: output
+              workspace: shared-workspace
+         - name: getversion
+           taskRef:
+            name: getversion
+           params:
+            - name: CONTEXT_DIR
+              value: $(params.jobname)            
+           workspaces:
+            - name: source
+              workspace: shared-workspace            
+           runAfter:
+            - clone-sources                                                 
+         - name: npm-set-version
+           taskRef:
+            name: npm
+           params:
+            - name: IMAGE
+              value: node:19.8.1-alpine3.17
+            - name: PATH_CONTEXT
+              value: $(params.jobname)              
+            - name: ARGS 
+              value: 
+              - --no-git-tag-version
+              - version              
+              - $(tasks.getversion.results.version)$(params.commitid)                       
+           runAfter:
+            - getversion
+           workspaces:             
+            - name: source
+              workspace: shared-workspace    
+         - name: npm-install
+           taskRef:
+            name: npm
+           params:
+            - name: IMAGE
+              value: node:19.8.1-alpine3.17
+            - name: PATH_CONTEXT
+              value: $(params.jobname)                   
+            - name: ARGS 
+              value: 
+              - install                                    
+           runAfter:
+            - npm-set-version
+           workspaces:             
+            - name: source
+              workspace: shared-workspace   
+         - name: npm-build
+           taskRef:
+            name: npm
+           params:
+            - name: IMAGE
+              value: node:19.8.1-alpine3.17
+            - name: PATH_CONTEXT
+              value: $(params.jobname)                   
+            - name: ARGS 
+              value: 
+              - run
+              - build                                    
+           runAfter:
+            - npm-install
+           workspaces:             
+            - name: source
+              workspace: shared-workspace                             
+         - name: container-build
+           taskRef:
+            name: kaniko
+           params:
+            - name: IMAGE
+              value: $(params.Container_REPO)$(params.Container_Name_Prefix)$(params.jobname):$(tasks.getversion.results.version)$(params.commitid)                 
+           runAfter:
+            - npm-build
+           workspaces:           
+            - name: source
+              workspace: shared-workspace  
+         - name: clone-cd-repo
+           taskRef:
+            name: git-clone
+           params:
+            - name: url
+              value: $(params.deploymentrepo)
+            - name: revision 
+              value: dev
+            - name: deleteExisting
+              value: 'true'
+            - name: submodules
+              value: "false"
+           workspaces:
+            - name: output
+              workspace: cdrepo  
+           runAfter:
+            - container-build               
+         - name: replace-image-tag-in-helm-chart
+           taskRef:
+            name: yq
+           params:
+            - name: files
+              value: 
+               - "helm-chart/versions/versions_test.yaml"
+            - name: expression
+              value: '(.$(params.jobname).imageversion = \"$(tasks.getversion.results.version)$(params.commitid)\")'
+           workspaces:
+            - name: source
+              workspace: cdrepo            
+           runAfter:
+            - clone-cd-repo                          
+         - name: git-push-update-helm
+           taskRef:
+            name: git-cli
+           workspaces:
+            - name: source
+              workspace: cdrepo                
+           params:
+            - name: GIT_USER_NAME
+              value: holgerfischer
+            - name: GIT_USER_EMAIL
+              value: holger@hfischer.org         
+            - name: GIT_SCRIPT
+              value: |
+               git add helm-chart/versions/versions_test.yaml
+               git commit -m "updated helm cart with Image Version '$(tasks.getversion.results.version)$(params.commitid)' for $(params.jobname)"
+               git push origin HEAD:dev 
+           runAfter:
+            - replace-image-tag-in-helm-chart                                                            
+   tags:
+    - myf_pipeline   
