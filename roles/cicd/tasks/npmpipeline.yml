@@ -123,7 +123,7 @@
             - name: DOCKERFILE
               value: $(params.jobname)/Dockerfile
             - name: CONTEXT
-              value: $(params.jobname)                                       
+              value: apps/$(params.jobname)                                       
            runAfter:
             - npm-build
            workspaces:           
