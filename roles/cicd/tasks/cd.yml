@@ -9,11 +9,11 @@
     - cd  
 # tasks file for cicd
  - name: install argocd
-   shell: kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+   shell: kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v2.8.2/manifests/install.yaml
    tags:
     - cd
      
-
+# ingress is not working. I guess it has something to do with nginx because nekton is working with ingress class public
  - name: ingress for ArgoCD-Frontend
    kubernetes.core.k8s:
     state: present
@@ -40,6 +40,27 @@
                name: argocd-server
                port: 
                 number: 443
+   tags:
+    - cd
+
+# in case ingress is not working to make the frontend accessible via node port
+ - name: port forward for ArgoCD-Frontend
+   kubernetes.core.k8s:
+    state: present
+    definition:
+     apiVersion: v1
+     kind: Service
+     metadata:
+      name: argocd-nodeportserver
+      namespace: argocd 
+     spec:
+      selector:
+       app.kubernetes.io/name: argocd-server
+      ports:
+       - name: https
+         port: 8080
+         nodePort: 30099
+      type: NodePort
    tags:
     - cd
     
