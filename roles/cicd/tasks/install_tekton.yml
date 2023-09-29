@@ -1,17 +1,24 @@
 ---
 # tasks file for cicd
   - name: install tekton
-    shell: kubectl apply --filename https://storage.googleapis.com/tekton-releases/pipeline/previous/v0.30.0/release.yaml
+    shell: kubectl apply --filename https://storage.googleapis.com/tekton-releases/pipeline/previous/v0.51.0/release.yaml
     tags:
      - cicd
   - name: install tekton dashboard
-    shell: kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/previous/v0.22.0/tekton-dashboard-release.yaml
+    shell: kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/previous/v0.39.0/release.yaml
     tags:
      - cicd   
   - name: install tekton cli
-    shell: curl -LO https://github.com/tektoncd/cli/releases/download/v0.24.0/tkn_0.24.0_Linux_x86_64.tar.gz && tar xvzf tkn_0.24.0_Linux_x86_64.tar.gz -C /usr/local/bin/ tkn
+    #shell: curl -LO https://github.com/tektoncd/cli/releases/download/v0.28.0/tkn_0.28.0_Linux_x86_64.tar.gz && tar xvzf tkn_0.28.0_Linux_x86_64.tar.gz -C /usr/local/bin/ tkn
+    shell: curl -LO https://github.com/tektoncd/cli/releases/download/v0.32.0/tektoncd-cli-0.32.0_Linux-64bit.deb
     tags:
-     - cicd 
+     - cicd
+
+  - name: Install tekton cli
+    ansible.builtin.apt: 
+     deb: https://github.com/tektoncd/cli/releases/download/v0.32.0/tektoncd-cli-0.32.0_Linux-64bit.deb
+    tags:
+     - cicd
      
   - name: Create symbolic link 
     file:
@@ -22,9 +29,25 @@
      - cicd        
           
 #  - name: Add tekton cli as a kubectl plugin
-#    shell: ln -s /usr/local/bin/tkn /usr/local/bin/kubectl-tkn
+#    shell: ln -s /usr/local/bin/tkn /usr/local/bin/kubectl-tkn 
+#    shell: ln -s /usr/bin/tkn /usr/local/bin/kubectl-tkn #debian pkg installs to usr/bin
 #    tags:
 #     - cicd
+
+# set a link to local in case you have not installed it there (the Debian package installs to usr/bin). Otherwise you can not simply type ten
+#  - name: add ten link to usr/local/bin
+#    shell: ln -s /usr/bin/tkn /usr/local/bin/tkn 
+#    tags:
+#     - cicd
+
+#tekton ist looking for the Kubernetes config in the home dir but microk8 saves it at a different location
+#  - name: copy cube config to home
+#    shell: cp /var/snap/microk8s/current/credentials/client.config ~/.kube/config
+#    tags:
+#     - cicd
+
+# I don't know why but the Pipelinerun was not starting on my machine due to affinity rules (rules to be sure that jobs with one workspace run on the same Node). 
+# As long as I have only one node I can disable this with "kubectl edit configmap feature-flags -n tekton-pipelines" - coschedule = disabled, disable-affinity-assistant=true 
             
   - name: Install pip
     package: name=python3-pip
@@ -34,7 +57,18 @@
     shell: pip3 install kubernetes
     tags:
      - cicd   
+       
      
+  - name: install tkn triggers
+    shell: kubectl apply --filename https://storage.googleapis.com/tekton-releases/triggers/previous/v0.24.0/release.yaml
+    tags:
+     - cicd     
+  - name: install tkn interceptors
+    shell: kubectl apply --filename https://storage.googleapis.com/tekton-releases/triggers/previous/v0.24.0/interceptors.yaml
+    tags:
+     - cicd        
+
+
   - name: ingress for tekton dashboard
     kubernetes.core.k8s:
      state: present
@@ -42,11 +76,16 @@
       apiVersion: networking.k8s.io/v1
       kind: Ingress
       metadata:
-        name: tkndashoboard-ingress
+        name: tekton-dashboard
         namespace: tekton-pipelines
+        annotations:
+         nginx.ingress.kubernetes.io/rewrite-target: /
+        labels:
+         app: tekton-dashboard
       spec:
        rules:
-        - host: "tkn.mylocaldomain"
+        #- host: tkn.mylocaldomain
+        - host: 192.168.100.73.nip.io
           http:
            paths:
             - path: /
@@ -57,21 +96,9 @@
                 port: 
                  number: 9097
     tags:
-     - ci      
-     
-  - name: install tkn triggers
-    shell: kubectl apply --filename https://storage.googleapis.com/tekton-releases/triggers/previous/v0.17.1/release.yaml
-    tags:
-     - cicd     
-  - name: install tkn interceptors
-    shell: kubectl apply --filename https://storage.googleapis.com/tekton-releases/triggers/previous/v0.17.1/interceptors.yaml
-    tags:
-     - cicd        
+     - cicd 
 
-     
-     
 
-   
     
     
 

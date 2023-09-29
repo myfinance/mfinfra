@@ -4,6 +4,9 @@
     snap:
       name: microk8s
       classic: yes
+      #der richtige Channel wird zumindest beim Upgrade nicht gezogen. Die einmal installierte version wird nie aktualisiert. Dies muss mit : sudo snap refresh microk8s --channel 1.28/stable 
+      #manuell gemacht werden. Ggf. ist der Channel aber hilfreich um bestimmte Versionen zu installieren. Die muss aber getestet werden
+      #channel: 1.28
     tags:
      - microk8 
      
