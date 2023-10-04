@@ -235,7 +235,33 @@
     namespace: mfpipeline
     src: ~/kaniko.yaml 
    tags:   
-    - pipeline_prepare          
+    - pipeline_prepare    
+
+ - name: Cleanup Workspace task
+   kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: tekton.dev/v1beta1
+      kind: Task
+      metadata:
+        name: cleanupworkspace
+        namespace: mfpipeline
+        annotations:
+          description: |
+                  A simple task that deletes all files and directories in the workspace
+      spec:
+        workspaces:
+          - name: source
+            description: The workspace to cleanup           
+        steps:
+          - name: delete-all
+            image: bash:latest
+            script: |
+              #!/usr/bin/env bash
+              cd $(workspaces.source.path)
+              rm -rf -- ..?* .[!.]* *     
+   tags:
+    - pipeline_prepare        
     
                                   
                                
