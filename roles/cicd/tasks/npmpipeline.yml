@@ -177,6 +177,13 @@
                git commit -m "updated helm cart with Image Version '$(tasks.getversion.results.version)$(params.commitid)' for $(params.jobname)"
                git push origin HEAD:dev 
            runAfter:
-            - replace-image-tag-in-helm-chart                                                            
+            - replace-image-tag-in-helm-chart 
+        finally:
+         - name: cleanup
+           taskRef:
+            name: cleanupworkspace
+           workspaces: 
+            - name: source
+              workspace: cdrepo                                                               
    tags:
     - myf_pipeline   
