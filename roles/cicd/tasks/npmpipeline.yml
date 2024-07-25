@@ -68,7 +68,7 @@
             name: npm
            params:
             - name: IMAGE
-              value: node:19.8.1-alpine3.17
+              value: node:20.16.0-alpine3.20
             - name: PATH_CONTEXT
               value: $(params.jobname)              
             - name: ARGS 
@@ -86,7 +86,7 @@
             name: npm
            params:
             - name: IMAGE
-              value: node:19.8.1-alpine3.17
+              value: node:20.16.0-alpine3.20
             - name: PATH_CONTEXT
               value: $(params.jobname)                   
             - name: ARGS 
@@ -102,7 +102,7 @@
             name: npm
            params:
             - name: IMAGE
-              value: node:19.8.1-alpine3.17
+              value: node:20.16.0-alpine3.20
             - name: PATH_CONTEXT
               value: $(params.jobname)                   
             - name: ARGS 
