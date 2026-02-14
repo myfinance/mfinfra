@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+# docker exec bootstrap-postgres-1 pg_dump -U semaphore -d semaphore > semaphore_backup_$(date +%Y%m%d).sql
+# bootstrap-postgres-1 is the containername, please  check with "docker ps" command and adjust if necessary
+# restore: cat backup.sql | docker exec -i bootstrap-postgres-1 psql -U semaphore -d semaphore
+  postgres:
+    image: postgres:14-alpine
+    volumes:
+      - semaphore-postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: semaphore
+      POSTGRES_PASSWORD: vulkan
+      POSTGRES_DB: semaphore
+    restart: unless-stopped
+
+  semaphore:
+    image: public.ecr.aws/semaphore/pro/server:v2.16.51
+    ports:
+      - 3000:3000
+    environment:
+      SEMAPHORE_DB_DIALECT: postgres
+      SEMAPHORE_DB_USER: semaphore
+      SEMAPHORE_DB_PASS: vulkan
+      SEMAPHORE_DB_HOST: postgres
+      SEMAPHORE_DB_PORT: 5432
+      SEMAPHORE_DB: semaphore
+      SEMAPHORE_ADMIN: admin
+      SEMAPHORE_ADMIN_PASSWORD: vulkan
+      SEMAPHORE_ADMIN_NAME: admin
+      SEMAPHORE_ADMIN_EMAIL: admin@localhost
+      # Crucial: This key encrypts your SSH keys in the DB
+      SEMAPHORE_ACCESS_KEY_ENCRYPTION: "IN6EDfRxFDJTxcInQlIhQbxIyCe4xphl4+3XhTWAHvQ=" 
+
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+volumes:
+  semaphore-postgres:
+
+# Generate a secure encryption key for SEMAPHORE_ACCESS_KEY_ENCRYPTION on your Mac terminal using: 
+# head -c32 /dev/urandom | base64
+
+# configure semaphore via UI:
+# - Open http://localhost:3000 in your browser.
+# - Log in with username: admin and password: vulkan (default password).
+# - Follow the prompts to set up your first project and connect it to your Git repository.
+# Generate an SSH Key: On your Mac, run ssh-keygen -t ed25519 -f ~/pi_deploy_key.
+# Add to Pi: Manually (just once) add the contents of pi_deploy_key.pub to the /home/pi/.ssh/authorized_keys file on your Raspberry Pi.
+# Add to Semaphore: In the Semaphore Key Store, create a new key of type SSH Key. Paste the private part of pi_deploy_key.
