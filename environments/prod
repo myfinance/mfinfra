@@ -7,3 +7,11 @@ microk8 ansible_host=192.168.100.73 ansible_ssh_user=holger
 [myservers:children]
 #minikubehosts
 microk8hosts
+
+
+all:
+  hosts:
+    Rasby1:
+      ansible_host: 192.168.100.152
+    Rasby2:
+      ansible_host: 192.168.100.153

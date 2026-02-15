@@ -1,0 +1,19 @@
+---
+- name: Enable IPv4 forwarding (Required for K3s)
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    state: present
+
+- name: Append cgroup settings to cmdline.txt
+  # We use a regex to ensure we don't double-append if the script runs twice
+  replace:
+    path: /boot/firmware/cmdline.txt
+    regexp: '^([\w\d\s\.\/\-\=]+)$'
+    replace: '\1 cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory'
+  register: boot_conf
+
+- name: Reboot the Pi if config changed
+  reboot:
+    msg: "Rebooting to apply cgroup settings"
+  when: boot_conf.changed
