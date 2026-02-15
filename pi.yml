@@ -1,6 +1,6 @@
 ---
   - name: Setup Raspberry Pis
-    hosts: pi_clients
+    hosts: k3s_masters
     remote_user: holger
     become: true
     become_method: sudo
