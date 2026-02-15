@@ -46,6 +46,11 @@ volumes:
 # - Open http://localhost:3000 in your browser.
 # - Log in with username: admin and password: vulkan (default password).
 # - Follow the prompts to set up your first project and connect it to your Git repository.
-# Generate an SSH Key: On your Mac, run ssh-keygen -t ed25519 -f ~/pi_deploy_key.
-# Add to Pi: Manually (just once) add the contents of pi_deploy_key.pub to the /home/pi/.ssh/authorized_keys file on your Raspberry Pi.
-# Add to Semaphore: In the Semaphore Key Store, create a new key of type SSH Key. Paste the private part of pi_deploy_key.
+# Generate an SSH Key: On your Mac, run ssh-keygen -t ed25519 -C "your_email@example.com" 
+# Press Enter to accept the default file location
+# leave passphrase empty → fully automatic login
+# This creates:
+# id_ed25519 private key keep secret
+# id_ed25519.pub public key copy to Pi: ssh-copy-id username@192.168.100.152 
+# enter one last time your pw
+# connect passwordless with username@192.168.100.152
