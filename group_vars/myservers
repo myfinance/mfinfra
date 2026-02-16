@@ -13,6 +13,10 @@
  nexusstorage: /mnt/data/nexus/
  nexus_port: 31001
  nexus_dockerrepo_port: 31003 
+
+ # vars for k3s
+ k3s_token: "YOUR_SECURE_CLUSTER_TOKEN_123" 
+ master_ip: "192.168.100.152"
  
  repouser: holgerfischer
  gittoken: !vault |

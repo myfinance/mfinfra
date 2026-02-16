@@ -1,0 +1,3 @@
+---
+  k3s_token: "YOUR_SECURE_CLUSTER_TOKEN_123" 
+  master_ip: "192.168.100.1"

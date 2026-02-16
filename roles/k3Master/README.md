@@ -1,0 +1,1 @@
+Setup the kubernetes node master for a cluster
