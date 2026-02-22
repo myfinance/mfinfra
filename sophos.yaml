@@ -2,15 +2,5 @@
   - name: Configure sophos firewall
     hosts: sophos_fw
     gather_facts: false
-    pre_tasks:
-      - name: Install sophosfirewall-python library
-        ansible.builtin.command: pip install sophosfirewall-python
-        delegate_to: localhost
-        run_once: true
-      - name: Debug Python interpreter path
-        ansible.builtin.debug:
-          msg: "Python interpreter used by Ansible: {{ ansible_python_interpreter }}"
-        delegate_to: localhost
-        run_once: true
     roles:
      - sophos
