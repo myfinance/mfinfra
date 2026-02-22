@@ -1,2 +1,7 @@
 ---
- - import_tasks: dhcp.yaml
+- name: Install sophos.sophos_firewall collection
+  ansible.builtin.command: ansible-galaxy collection install sophos.sophos_firewall
+  delegate_to: localhost
+  run_once: true
+- import_tasks: dhcp.yaml
+
