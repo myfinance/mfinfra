@@ -2,5 +2,12 @@
   - name: Configure sophos firewall
     hosts: sophos_fw
     gather_facts: false
+    pre_tasks:
+      - name: Install sophosfirewall-python library
+        ansible.builtin.pip:
+          name: sophosfirewall-python
+          state: present
+        delegate_to: localhost
+        run_once: true
     roles:
      - sophos
