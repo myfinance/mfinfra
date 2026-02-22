@@ -1,2 +1,3 @@
+# this file installs additional galaxy collections 
 collections:
   - sophos.sophos_firewall
