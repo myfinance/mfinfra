@@ -34,7 +34,8 @@ services:
 
     depends_on:
       - postgres
-    command: sh -c "pip install sophosfirewall-python && /usr/bin/semaphore"
+    volumes:
+      - ./requirements.txt:/etc/semaphore/requirements.txt
     restart: unless-stopped
 
 volumes:
