@@ -10,7 +10,7 @@ services:
       - semaphore-postgres:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: semaphore
-      POSTGRES_PASSWORD: vulkan
+      POSTGRES_PASSWORD: tbd
       POSTGRES_DB: semaphore
     restart: unless-stopped
 
@@ -21,16 +21,16 @@ services:
     environment:
       SEMAPHORE_DB_DIALECT: postgres
       SEMAPHORE_DB_USER: semaphore
-      SEMAPHORE_DB_PASS: vulkan
+      SEMAPHORE_DB_PASS: tbd
       SEMAPHORE_DB_HOST: postgres
       SEMAPHORE_DB_PORT: 5432
       SEMAPHORE_DB: semaphore
       SEMAPHORE_ADMIN: admin
-      SEMAPHORE_ADMIN_PASSWORD: vulkan
+      SEMAPHORE_ADMIN_PASSWORD: tbd
       SEMAPHORE_ADMIN_NAME: admin
       SEMAPHORE_ADMIN_EMAIL: admin@localhost
       # Crucial: This key encrypts your SSH keys in the DB
-      SEMAPHORE_ACCESS_KEY_ENCRYPTION: "IN6EDfRxFDJTxcInQlIhQbxIyCe4xphl4+3XhTWAHvQ=" 
+      SEMAPHORE_ACCESS_KEY_ENCRYPTION: "tbd" 
 
     depends_on:
       - postgres

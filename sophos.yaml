@@ -1,0 +1,6 @@
+---
+  - name: Configure sophos firewall
+    hosts: sophos_fw
+    gather_facts: false
+    roles:
+     - sophos

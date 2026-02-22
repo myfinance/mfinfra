@@ -1,9 +1,26 @@
-This is the starting point to install and configure MyFinance and all tools around.
+This is the starting point for all my infrastructure
 
 ### get started ###
 
-If you want to create VMs automaticly with infrastructure as code you should use Terraform. Otherwise you have to provide a plain linux server manually for Ansible(fedora) and your target environment(ubuntu with microk8 installed). 
-To configure the VMs with the needed Tools and applications we use Ansible.
+go to /bootstrap and replace tbd passwords and tokens with real ones (my are in a keepass vault)
+run install_local_env.sh
+restore database
+docker exec bootstrap-postgres-1 pg_dump -U semaphore -d semaphore > semaphore_backup_$(date +%Y%m%d).sql
+restore: cat backup.sql | docker exec -i bootstrap-postgres-1 psql -U semaphore -d semaphore
+
+go to http://localhost:3000
+
+### configure semaphore
+
+if no db backup is available go to go to http://localhost:3000
+create a project 
+add the repository (link to a git repository with the ansible code, if public use credentials none)
+
+
+### backup database
+
+docker exec bootstrap-postgres-1 pg_dump -U semaphore -d semaphore > semaphore_backup_$(date +%Y%m%d).sql
+bootstrap-postgres-1 is the containername, please  check with "docker ps" command and adjust if necessary
 
 #### prepare the server ####
 
@@ -59,7 +76,7 @@ Token: the password you have saved as k8 secret (see Role CICD-pipelines)
 
 ### get the argo cd init pw
 
-get initpw to user admin with: kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 –d
+get initpw to user admin with: kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 ï¿½d
 
 ### setup sonar-projekts
 
