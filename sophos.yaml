@@ -2,5 +2,8 @@
   - name: Configure sophos firewall
     hosts: sophos_fw
     gather_facts: false
+    # This tells Ansible to look in the specific folder Semaphore uses
+    collections:
+     - sophos.sophos_firewall
     roles:
      - sophos
