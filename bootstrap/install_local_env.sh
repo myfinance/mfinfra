@@ -4,6 +4,8 @@
 # It is intended to be run in OrbStack.
 
 echo "Start installation of IaC Tools(Ansable...)..."
+echo "build the docker file"
+docker build -t semaphore-sophos .
 
 # Ensure Docker Compose is available
 if ! command -v docker-compose &> /dev/null

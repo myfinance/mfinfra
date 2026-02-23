@@ -15,7 +15,8 @@ services:
     restart: unless-stopped
 
   semaphore:
-    image: public.ecr.aws/semaphore/pro/server:v2.16.51
+    # image: public.ecr.aws/semaphore/pro/server:v2.16.51
+    image: semaphore-sophos
     ports:
       - 3000:3000
     environment:
