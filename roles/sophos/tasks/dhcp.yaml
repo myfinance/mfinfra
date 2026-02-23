@@ -1,6 +1,11 @@
 ---
 - name: Set DHCP Server Configuration
   sophos.sophos_firewall.sfos_xmlapi:
+    hostname: "{{ ansible_host }}"
+    port: "{{ ansible_port }}"
+    username: "{{ ansible_user }}"
+    password: "{{ ansible_password }}"
+    validate_certs: false
     xml_tag: DHCPServer
     state: updated
     data: |
