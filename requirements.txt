@@ -1,2 +1,0 @@
-sophosfirewall-python
-# this install requirements(not galaxy collections) needed by ansible roles
