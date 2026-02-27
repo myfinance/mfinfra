@@ -5,14 +5,5 @@
     # This tells Ansible to look in the specific folder Semaphore uses
     collections:
      - sophos.sophos_firewall
-     - community.network
     roles:
      - sophos
-    vars:
-      # prefix to identify managed objects in sophos configuration
-      prefix: "ansible_"
-
-      # all hostname
-      managed_ip_hosts:
-        - { name: "ansible_DHCP_Clients", type: "IPRange", start: "192.168.100.100", end: "192.168.100.240" }
-        - { name: "ansible_PC-Paul", type: "IP", ip: "192.168.100.241" }

@@ -1,5 +1,7 @@
-- name: Fetch all existing IPHosts
-  community.network.sophos_xg:
+---
+# 1. Fetch current state from the firewall
+- name: Fetch all existing IPHosts from Sophos
+  sophos.sophos_firewall.sophos_xg:
     host: "{{ ansible_host }}"
     api_key: "{{ sophos_api_key }}"
     name: "IPHost"
@@ -8,19 +10,18 @@
 
 - name: Identify Orphaned Prefixed Hosts
   set_fact:
-    # Step A: Get all host names
-    # Step B: Filter names that start with our prefix
-    # Step C: Subtract the names we actually want to keep
+    # Filter for objects starting with your prefix that ARE NOT in your managed list
     hosts_to_delete: >-
       {{
         current_hosts_raw.ansible_facts.sophos_xg_api_output 
         | map(attribute='Name') 
-        | select('match', '^' ~ prefix) 
+        | select('match', '^' ~ managed_prefix) 
         | difference(managed_ip_hosts | map(attribute='name') | list)
       }}
 
+# 2. Cleanup: Remove hosts that have the prefix but aren't in our YAML
 - name: Delete Orphaned Prefixed Hosts
-  community.network.sophos_xg:
+  sophos.sophos_firewall.sophos_xg:
     host: "{{ ansible_host }}"
     api_key: "{{ sophos_api_key }}"
     name: "IPHost"
@@ -29,8 +30,9 @@
   loop: "{{ hosts_to_delete }}"
   when: hosts_to_delete | length > 0
 
-- name: Ensure Desired Hosts Exist
-  community.network.sophos_xg:
+# 3. Enforcement: Create or Update your defined hosts
+- name: Ensure Desired IPHosts are Present
+  sophos.sophos_firewall.sophos_xg:
     host: "{{ ansible_host }}"
     api_key: "{{ sophos_api_key }}"
     name: "IPHost"
@@ -42,7 +44,7 @@
         <HostType>{{ item.type }}</HostType>
         {% if item.type == 'IP' %}
         <IPAddress>{{ item.ip }}</IPAddress>
-        {% else %}
+        {% elif item.type == 'IPRange' %}
         <StartIPAddress>{{ item.start }}</StartIPAddress>
         <EndIPAddress>{{ item.end }}</EndIPAddress>
         {% endif %}

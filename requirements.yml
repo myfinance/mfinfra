@@ -1,4 +1,3 @@
 ---
 collections:
   - name: sophos.sophos_firewall
-  - name: community.network
