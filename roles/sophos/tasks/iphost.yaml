@@ -36,8 +36,8 @@
   sophos.sophos_firewall.sfos_ip_host:
     name: "{{ item.name }}"
     address_type: "{{ 'IP' if item.type == 'IP' else 'IPRange' }}"
-    ipv4_address: "{{ item.ip | default(omit) }}"
-    start_ip_address: "{{ item.start | default(omit) }}"
-    end_ip_address: "{{ item.end | default(omit) }}"
+    ip_address: "{{ item.ip | default(omit) }}"
+    start_ip: "{{ item.start | default(omit) }}"
+    end_ip: "{{ item.end | default(omit) }}"
     state: present
   loop: "{{ managed_ip_hosts }}"
