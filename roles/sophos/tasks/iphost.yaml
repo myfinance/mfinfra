@@ -12,7 +12,8 @@
   set_fact:
     hosts_to_delete: >-
       {{
-        current_hosts_raw.output.IPHost | map(attribute='Name') 
+        current_hosts_raw.response.IPHost | default([])
+        | map(attribute='Name') 
         | select('match', '^' ~ managed_prefix) 
         | difference(managed_ip_hosts | map(attribute='name') | list)
       }}
