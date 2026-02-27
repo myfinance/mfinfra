@@ -35,7 +35,7 @@
     ansible_network_os: sophos.sophos_firewall.sfos
   sophos.sophos_firewall.sfos_ip_host:
     name: "{{ item.name }}"
-    host_type: "{{ 'IP' if item.type == 'IP' else 'IPRange' }}"
+    host_type: "{{ 'IP' if item.type == 'ip' else 'range' }}"
     ip_address: "{{ item.ip | default(omit) }}"
     start_ip: "{{ item.start | default(omit) }}"
     end_ip: "{{ item.end | default(omit) }}"
