@@ -1,5 +1,5 @@
 - name: Fetch all existing IPHosts
-  community.network.sophos_xg_api:
+  community.network.sophos_xg:
     host: "{{ ansible_host }}"
     api_key: "{{ sophos_api_key }}"
     name: "IPHost"
@@ -20,7 +20,7 @@
       }}
 
 - name: Delete Orphaned Prefixed Hosts
-  community.network.sophos_xg_api:
+  community.network.sophos_xg:
     host: "{{ ansible_host }}"
     api_key: "{{ sophos_api_key }}"
     name: "IPHost"
@@ -30,7 +30,7 @@
   when: hosts_to_delete | length > 0
 
 - name: Ensure Desired Hosts Exist
-  community.network.sophos_xg_api:
+  community.network.sophos_xg:
     host: "{{ ansible_host }}"
     api_key: "{{ sophos_api_key }}"
     name: "IPHost"

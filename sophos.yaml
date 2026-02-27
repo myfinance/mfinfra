@@ -5,6 +5,7 @@
     # This tells Ansible to look in the specific folder Semaphore uses
     collections:
      - sophos.sophos_firewall
+     - community.network
     roles:
      - sophos
     vars:

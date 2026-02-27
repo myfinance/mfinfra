@@ -1,4 +1,4 @@
 ---
 collections:
   - name: sophos.sophos_firewall
-  - name: community.network.sophos_xg_api
+  - name: community.network
