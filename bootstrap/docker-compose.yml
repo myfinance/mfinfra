@@ -15,8 +15,7 @@ services:
     restart: unless-stopped
 
   semaphore:
-    # image: public.ecr.aws/semaphore/pro/server:v2.16.51
-    image: semaphore-sophos
+    image: public.ecr.aws/semaphore/pro/server:v2.16.51
     ports:
       - 3000:3000
     environment:
@@ -47,7 +46,7 @@ volumes:
 
 # configure semaphore via UI:
 # - Open http://localhost:3000 in your browser.
-# - Log in with username: admin and password: vulkan (default password).
+# - Log in with username: admin and password
 # - Follow the prompts to set up your first project and connect it to your Git repository.
 # Generate an SSH Key: On your Mac, run ssh-keygen -t ed25519 -C "your_email@example.com" 
 # Press Enter to accept the default file location

@@ -1,0 +1,50 @@
+- name: Fetch all existing IPHosts
+  community.network.sophos_xg_api:
+    host: "{{ ansible_host }}"
+    api_key: "{{ sophos_api_key }}"
+    name: "IPHost"
+    operation: "get"
+  register: current_hosts_raw
+
+- name: Identify Orphaned Prefixed Hosts
+  set_fact:
+    # Step A: Get all host names
+    # Step B: Filter names that start with our prefix
+    # Step C: Subtract the names we actually want to keep
+    hosts_to_delete: >-
+      {{
+        current_hosts_raw.ansible_facts.sophos_xg_api_output 
+        | map(attribute='Name') 
+        | select('match', '^' ~ prefix) 
+        | difference(managed_ip_hosts | map(attribute='name') | list)
+      }}
+
+- name: Delete Orphaned Prefixed Hosts
+  community.network.sophos_xg_api:
+    host: "{{ ansible_host }}"
+    api_key: "{{ sophos_api_key }}"
+    name: "IPHost"
+    operation: "remove"
+    data: "<Name>{{ item }}</Name>"
+  loop: "{{ hosts_to_delete }}"
+  when: hosts_to_delete | length > 0
+
+- name: Ensure Desired Hosts Exist
+  community.network.sophos_xg_api:
+    host: "{{ ansible_host }}"
+    api_key: "{{ sophos_api_key }}"
+    name: "IPHost"
+    operation: "set"
+    data: |
+      <IPHost>
+        <Name>{{ item.name }}</Name>
+        <IPFamily>IPv4</IPFamily>
+        <HostType>{{ item.type }}</HostType>
+        {% if item.type == 'IP' %}
+        <IPAddress>{{ item.ip }}</IPAddress>
+        {% else %}
+        <StartIPAddress>{{ item.start }}</StartIPAddress>
+        <EndIPAddress>{{ item.end }}</EndIPAddress>
+        {% endif %}
+      </IPHost>
+  loop: "{{ managed_ip_hosts }}"
