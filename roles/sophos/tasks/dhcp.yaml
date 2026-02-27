@@ -5,56 +5,30 @@
     state: updated
     data: |
       <DHCPServer>
-        <Name>SophosDHCP</Name>
+        <Name>{{ dhcp_config.name }}</Name>
         <Status>1</Status>
-        <Interface>Port1</Interface>
+        <Interface>{{ dhcp_config.interface }}</Interface>
         <IPLease>
-          <IP>192.168.100.100-192.168.100.240</IP>
+          <IP>{{ dhcp_config.lease_range }}</IP>
         </IPLease>
         <StaticLease>
+          {% for lease in dhcp_config.static_leases %}
           <Lease>
-            <HostName>ANSIBLE</HostName>
-            <MACAddress>00:0C:29:3A:BA:A8</MACAddress>
-            <IPAddress>192.168.100.71</IPAddress>
+            <HostName>{{ lease.name }}</HostName>
+            <MACAddress>{{ lease.mac }}</MACAddress>
+            <IPAddress>{{ lease.ip }}</IPAddress>
           </Lease>
-          <Lease>
-            <HostName>KUBERNETES</HostName>
-            <MACAddress>00:0C:29:2C:D0:9C</MACAddress>
-            <IPAddress>192.168.100.73</IPAddress>
-          </Lease>
-          <Lease>
-            <HostName>Rasby1</HostName>
-            <MACAddress>88:a2:9e:63:70:b7</MACAddress>
-            <IPAddress>192.168.100.80</IPAddress>
-          </Lease>
-          <Lease>
-            <HostName>SURFACE</HostName>
-            <MACAddress>4C:0B:BE:10:5B:44</MACAddress>
-            <IPAddress>192.168.100.241</IPAddress>
-          </Lease>
-          <Lease>
-            <HostName>PC-JONAS</HostName>
-            <MACAddress>00:1F:D0:9A:D0:B8</MACAddress>
-            <IPAddress>192.168.100.242</IPAddress>
-          </Lease>
-          <Lease>
-            <HostName>LINUX_OPEN</HostName>
-            <MACAddress>00:0C:29:1A:7A:96</MACAddress>
-            <IPAddress>192.168.100.250</IPAddress>
-          </Lease>
+          {% endfor %}
         </StaticLease>
         <ConflictDetection>Disable</ConflictDetection>
         <LeaseForRelay>Disable</LeaseForRelay>
         <SubnetMask>255.255.255.0</SubnetMask>
-        <DomainName/>
         <DefaultLeaseTime>1440</DefaultLeaseTime>
         <MaxLeaseTime>2880</MaxLeaseTime>
         <UseApplianceDNSSettings>Disable</UseApplianceDNSSettings>
-        <PrimaryDNSServer>192.168.100.1</PrimaryDNSServer>
-        <SecondaryDNSServer>192.168.178.1</SecondaryDNSServer>
-        <PrimaryWINSServer/>
-        <SecondaryWINSServer/>
-        <Gateway>192.168.100.1</Gateway>
+        <PrimaryDNSServer>{{ dhcp_config.dns_primary }}</PrimaryDNSServer>
+        <SecondaryDNSServer>{{ dhcp_config.dns_secondary }}</SecondaryDNSServer>
+        <Gateway>{{ dhcp_config.gateway }}</Gateway>
         <UseInterfaceIPasGateway>UseInterfaceIPAsGateway</UseInterfaceIPasGateway>
       </DHCPServer>
   vars:

@@ -1,11 +1,29 @@
 ---
 managed_prefix: "ansible_"
 
+dhcp_start_ip: "192.168.100.100"
+dhcp_end_ip: "192.168.100.240"
+
 managed_ip_hosts:
   - name: "ansible_DHCP_Clients"
     type: "range"
-    start: "192.168.100.100"
-    end: "192.168.100.240"
+    start: "{{ dhcp_start_ip }}"
+    end: "{{ dhcp_end_ip }}"
   - name: "ansible_PC-Paul"
     type: "ip"
     ip: "192.168.100.241"
+
+dhcp_config:
+  name: "SophosDHCP"
+  interface: "Port1"
+  lease_range: "{{ dhcp_start_ip }}-{{ dhcp_end_ip }}"
+  dns_primary: "192.168.100.1"
+  dns_secondary: "192.168.178.1"
+  gateway: "192.168.100.1"
+  static_leases:
+    - { name: "ANSIBLE", mac: "00:0C:29:3A:BA:A8", ip: "192.168.100.71" }
+    - { name: "KUBERNETES", mac: "00:0C:29:2C:D0:9C", ip: "192.168.100.73" }
+    - { name: "Rasby1", mac: "88:a2:9e:63:70:b7", ip: "192.168.100.80" }
+    - { name: "SURFACE", mac: "4C:0B:BE:10:5B:44", ip: "192.168.100.241" }
+    - { name: "PC-JONAS", mac: "00:1F:D0:9A:D0:B8", ip: "192.168.100.242" }
+    - { name: "LINUX_OPEN", mac: "00:0C:29:1A:7A:96", ip: "192.168.100.250" }
