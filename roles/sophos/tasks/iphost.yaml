@@ -1,8 +1,5 @@
 # 1. Get current hosts to find orphans (using the specific XML API module)
 - name: Fetch existing IPHosts
-  vars:
-    ansible_connection: httpapi
-    ansible_network_os: sophos.sophos_firewall.sfos
   sophos.sophos_firewall.sfos_xmlapi:
     xml_tag: "IPHost"
     state: "query"
@@ -24,9 +21,6 @@
 
 # 2. Delete orphans using the dedicated host module
 - name: Remove Orphaned IPHosts
-  vars:
-    ansible_connection: httpapi
-    ansible_network_os: sophos.sophos_firewall.sfos
   sophos.sophos_firewall.sfos_ip_host:
     name: "{{ item }}"
     state: absent
@@ -37,9 +31,6 @@
 
 # 3. Create/Update managed hosts using the dedicated host module
 - name: Sync Managed IPHosts
-  vars:
-    ansible_connection: httpapi
-    ansible_network_os: sophos.sophos_firewall.sfos
   sophos.sophos_firewall.sfos_ip_host:
     name: "{{ item.name }}"
     host_type: "{{ 'ip' if item.type == 'ip' else 'range' }}"
