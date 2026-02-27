@@ -7,6 +7,8 @@
     xml_tag: "IPHost"
     state: "query"
   register: current_hosts_raw
+  tags:
+    - iphost 
 
 - name: Identify Orphaned Prefixed Hosts
   set_fact:
@@ -17,6 +19,8 @@
         | select('match', '^' ~ managed_prefix) 
         | difference(managed_ip_hosts | map(attribute='name') | list)
       }}
+  tags:
+    - iphost 
 
 # 2. Delete orphans using the dedicated host module
 - name: Remove Orphaned IPHosts
@@ -27,6 +31,9 @@
     name: "{{ item }}"
     state: absent
   loop: "{{ hosts_to_delete }}"
+  tags:
+    - iphost 
+
 
 # 3. Create/Update managed hosts using the dedicated host module
 - name: Sync Managed IPHosts
@@ -41,3 +48,5 @@
     end_ip: "{{ item.end | default(omit) }}"
     state: present
   loop: "{{ managed_ip_hosts }}"
+  tags:
+    - iphost 

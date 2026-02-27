@@ -3,6 +3,8 @@ managed_prefix: "ansible_"
 
 dhcp_start_ip: "192.168.100.100"
 dhcp_end_ip: "192.168.100.240"
+ansible_connection: httpapi
+ansible_network_os: sophos.sophos_firewall.sfos
 
 managed_ip_hosts:
   - name: "ansible_DHCP_Clients"

@@ -31,6 +31,5 @@
         <Gateway>{{ dhcp_config.gateway }}</Gateway>
         <UseInterfaceIPasGateway>UseInterfaceIPAsGateway</UseInterfaceIPasGateway>
       </DHCPServer>
-  vars:
-    ansible_connection: httpapi
-    ansible_network_os: sophos.sophos_firewall.sfos
+  tags:
+    - dhcp  
