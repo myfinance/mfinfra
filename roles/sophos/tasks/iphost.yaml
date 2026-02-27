@@ -1,52 +1,42 @@
----
-# 1. Fetch current state from the firewall
-- name: Fetch all existing IPHosts from Sophos
-  sophos.sophos_firewall.sophos_xg:
-    host: "{{ ansible_host }}"
-    api_key: "{{ sophos_api_key }}"
-    name: "IPHost"
-    operation: "get"
+# 1. Get current hosts to find orphans (using the specific XML API module)
+- name: Fetch existing IPHosts
+  vars:
+    ansible_connection: httpapi
+    ansible_network_os: sophos.sophos_firewall.sfos
+  sophos.sophos_firewall.sfos_xmlapi:
+    xml_tag: "IPHost"
+    state: "query"
   register: current_hosts_raw
 
 - name: Identify Orphaned Prefixed Hosts
   set_fact:
-    # Filter for objects starting with your prefix that ARE NOT in your managed list
     hosts_to_delete: >-
       {{
-        current_hosts_raw.ansible_facts.sophos_xg_api_output 
-        | map(attribute='Name') 
+        current_hosts_raw.output.IPHost | map(attribute='Name') 
         | select('match', '^' ~ managed_prefix) 
         | difference(managed_ip_hosts | map(attribute='name') | list)
       }}
 
-# 2. Cleanup: Remove hosts that have the prefix but aren't in our YAML
-- name: Delete Orphaned Prefixed Hosts
-  sophos.sophos_firewall.sophos_xg:
-    host: "{{ ansible_host }}"
-    api_key: "{{ sophos_api_key }}"
-    name: "IPHost"
-    operation: "remove"
-    data: "<Name>{{ item }}</Name>"
+# 2. Delete orphans using the dedicated host module
+- name: Remove Orphaned IPHosts
+  vars:
+    ansible_connection: httpapi
+    ansible_network_os: sophos.sophos_firewall.sfos
+  sophos.sophos_firewall.sfos_ip_host:
+    name: "{{ item }}"
+    state: absent
   loop: "{{ hosts_to_delete }}"
-  when: hosts_to_delete | length > 0
 
-# 3. Enforcement: Create or Update your defined hosts
-- name: Ensure Desired IPHosts are Present
-  sophos.sophos_firewall.sophos_xg:
-    host: "{{ ansible_host }}"
-    api_key: "{{ sophos_api_key }}"
-    name: "IPHost"
-    operation: "set"
-    data: |
-      <IPHost>
-        <Name>{{ item.name }}</Name>
-        <IPFamily>IPv4</IPFamily>
-        <HostType>{{ item.type }}</HostType>
-        {% if item.type == 'IP' %}
-        <IPAddress>{{ item.ip }}</IPAddress>
-        {% elif item.type == 'IPRange' %}
-        <StartIPAddress>{{ item.start }}</StartIPAddress>
-        <EndIPAddress>{{ item.end }}</EndIPAddress>
-        {% endif %}
-      </IPHost>
+# 3. Create/Update managed hosts using the dedicated host module
+- name: Sync Managed IPHosts
+  vars:
+    ansible_connection: httpapi
+    ansible_network_os: sophos.sophos_firewall.sfos
+  sophos.sophos_firewall.sfos_ip_host:
+    name: "{{ item.name }}"
+    address_type: "{{ 'IP' if item.type == 'IP' else 'IPRange' }}"
+    ipv4_address: "{{ item.ip | default(omit) }}"
+    start_ip_address: "{{ item.start | default(omit) }}"
+    end_ip_address: "{{ item.end | default(omit) }}"
+    state: present
   loop: "{{ managed_ip_hosts }}"
